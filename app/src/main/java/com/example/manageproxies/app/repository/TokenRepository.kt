@@ -2,6 +2,7 @@ package com.example.manageproxies.app.repository
 
 import com.example.manageproxies.app.presentation.models.Token
 import com.example.manageproxies.data.remote.MyApi
+import com.example.manageproxies.data.remote.ServerInfo
 
 interface TokenRepository {
 
@@ -9,6 +10,6 @@ interface TokenRepository {
 
     fun getToken(): Token
 
-    fun getModemsFromApi(): MyApi
+    suspend fun getModemsFromApi(): ServerInfo
 
 }

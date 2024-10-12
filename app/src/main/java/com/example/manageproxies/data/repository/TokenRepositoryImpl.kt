@@ -4,11 +4,12 @@ import android.content.Context
 import com.example.manageproxies.app.presentation.models.Token
 import com.example.manageproxies.app.repository.TokenRepository
 import com.example.manageproxies.data.remote.MyApi
+import com.example.manageproxies.data.remote.ServerInfo
 
 private const val SHARED_PREFS_TOKEN = "shared_prefs_token"
 private const val KEY_NAME = "Token"
 
-class TokenRepositoryImpl(private val context: Context): TokenRepository {
+class TokenRepositoryImpl(private val context: Context, private val api: MyApi): TokenRepository {
 
     private val sharedPreferences = context.getSharedPreferences(SHARED_PREFS_TOKEN, Context.MODE_PRIVATE)
 
@@ -22,8 +23,8 @@ class TokenRepositoryImpl(private val context: Context): TokenRepository {
         return Token(token)
     }
 
-    override fun getModemsFromApi(): MyApi {
-
+    override suspend fun getModemsFromApi(): ServerInfo {
+        return api.getModems()
     }
 
 }
