@@ -10,20 +10,12 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.components.SingletonComponent
 import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
 
 @Module
-@InstallIn(ViewModelComponent::class, SingletonComponent::class)
+@InstallIn(ViewModelComponent::class)
 class AppModule {
-
-    @Provides
-    @Singleton
-    fun provideMyApi(): MyApi {
-        return Retrofit.Builder()
-            .baseUrl("https://mobileproxy.space/api.html?command=load_modems")
-            .build()
-            .create(MyApi::class.java)
-    }
 
     @Provides
     fun provideSaveTokenUseCase(tokenRepository: TokenRepository): SaveTokenUseCase {

@@ -23,7 +23,7 @@ class TokenRepositoryImpl(private val context: Context, private val api: MyApi):
         return Token(token)
     }
 
-    override suspend fun getModemsFromApi(): ServerInfo {
+    override suspend fun getModemsFromApi(): List<ServerInfo> {
         return api.getModems()
     }
 

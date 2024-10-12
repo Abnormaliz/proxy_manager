@@ -10,6 +10,6 @@ interface TokenRepository {
 
     fun getToken(): Token
 
-    suspend fun getModemsFromApi(): ServerInfo
+    suspend fun getModemsFromApi(): List<ServerInfo>
 
 }

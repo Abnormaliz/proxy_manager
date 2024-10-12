@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import com.example.manageproxies.app.presentation.models.Token
 import com.example.manageproxies.app.presentation.usecase.GetTokenUseCase
 import com.example.manageproxies.app.presentation.usecase.SaveTokenUseCase
-import com.example.manageproxies.app.presentation.usecase.getServerInfoApiUseCase
+import com.example.manageproxies.app.presentation.usecase.GetServerInfoApiUseCase
 import com.example.manageproxies.data.remote.ServerInfo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -13,7 +13,7 @@ import javax.inject.Inject
 class SharedViewModel @Inject constructor(
     private val saveTokenUseCase: SaveTokenUseCase,
     private val getTokenUseCase: GetTokenUseCase,
-    private val getServerInfoApiUseCase: getServerInfoApiUseCase
+    private val getServerInfoApiUseCase: GetServerInfoApiUseCase
 ) : ViewModel() {
 
     fun saveToken(token: Token) {
@@ -25,7 +25,7 @@ class SharedViewModel @Inject constructor(
         return getTokenUseCase.execute()
     }
 
-    suspend fun getServerInfoApi(): ServerInfo {
+    suspend fun getServerInfoApi(): List<ServerInfo> {
         return getServerInfoApiUseCase.execute()
     }
 }
