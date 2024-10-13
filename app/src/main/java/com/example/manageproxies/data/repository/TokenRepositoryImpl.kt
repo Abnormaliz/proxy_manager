@@ -3,6 +3,7 @@ package com.example.manageproxies.data.repository
 import android.content.Context
 import com.example.manageproxies.app.presentation.models.Token
 import com.example.manageproxies.app.repository.TokenRepository
+import com.example.manageproxies.data.remote.Modem
 import com.example.manageproxies.data.remote.MyApi
 import com.example.manageproxies.data.remote.ServerInfo
 
@@ -23,8 +24,12 @@ class TokenRepositoryImpl(private val context: Context, private val api: MyApi):
         return Token(token)
     }
 
-    override suspend fun getModemsFromApi(): List<ServerInfo> {
-        return api.getModems()
+    override suspend fun getServerInfoFromApi(token: String): List<ServerInfo> {
+        return api.getServerInfo(token)
+    }
+
+    override suspend fun getModemsFromApi(token: String): List<Modem> {
+        return api.getModems(token)
     }
 
 }

@@ -33,16 +33,14 @@ import kotlinx.coroutines.launch
 @Composable
 fun InputKeyScreen(navController: NavController, viewModel: SharedViewModel) {
     var apiKey by remember { mutableStateOf(TextFieldValue("")) }
-    val coroutineScope = rememberCoroutineScope()
-    var serverInfo by remember { mutableStateOf<List<ServerInfo>>(emptyList()) }
+
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        TextField(
-            value = apiKey,
+        TextField(value = apiKey,
             onValueChange = { apiKey = it },
             label = { Text("Enter API Key") },
             modifier = Modifier.fillMaxWidth()
@@ -51,18 +49,13 @@ fun InputKeyScreen(navController: NavController, viewModel: SharedViewModel) {
         Button(
             onClick = {
                 viewModel.saveToken(Token(apiKey.text))
-                      navController.navigate("listOfModemsScreen")
-                },
-            modifier = Modifier.fillMaxWidth()
+                navController.navigate("listOfModemsScreen")
+            }, modifier = Modifier.fillMaxWidth()
         ) {
             Text("Accept")
         }
 
-        LazyColumn {
-            coroutineScope.launch(Dispatchers.IO) {
-                serverInfo = viewModel.getServerInfoApi()
-            }
-        }
+
 
     }
 }
