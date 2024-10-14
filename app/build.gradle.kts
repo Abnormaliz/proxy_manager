@@ -75,6 +75,7 @@ dependencies {
 
     // Hilt dependencies
     implementation("com.google.dagger:hilt-android:2.52")
+    implementation("androidx.compose.runtime:runtime-livedata:1.7.3")
     kapt("com.google.dagger:hilt-compiler:2.52")
 
     testImplementation("junit:junit:4.13.2")

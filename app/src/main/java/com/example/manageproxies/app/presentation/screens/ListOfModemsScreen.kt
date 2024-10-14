@@ -8,6 +8,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -22,21 +23,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
-@SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun ListOfModemsScreen(viewModel : SharedViewModel) {
-    val coroutineScope = rememberCoroutineScope()
-    var serverInfo by remember { mutableStateOf<List<ServerInfo>>(emptyList()) }
-    var modem by remember { mutableStateOf<List<Modem>>(emptyList()) }
+    val serverInfo by viewModel.serverInfo.observeAsState()
+    val modems by viewModel.modems.observeAsState()
 
-    coroutineScope.launch(Dispatchers.IO) {
-//        serverInfo = viewModel.getServerInfoApi()
-        try {
-            modem = viewModel.getModemApi()
-        } catch (e: Exception) {
-            modem = modem
-        }
-    }
 
     Column {
 //        LazyColumn {
@@ -46,9 +37,14 @@ fun ListOfModemsScreen(viewModel : SharedViewModel) {
 //                }
 //            }
 //        }
+        Button(onClick = {
+            viewModel.getModemApi()
+        }) {
+            Text("Get Modems")
+        }
         LazyColumn {
             item {
-                modem.forEach {
+                modems?.forEach {
                     Text(it.toString())
                 }
             }
