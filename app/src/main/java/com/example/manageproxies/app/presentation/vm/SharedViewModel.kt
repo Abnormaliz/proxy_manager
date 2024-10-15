@@ -5,14 +5,14 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.manageproxies.app.presentation.models.ModemUi
+import com.example.manageproxies.app.presentation.models.ServerUi
+import com.example.manageproxies.app.presentation.models.toServerUi
 import com.example.manageproxies.app.presentation.models.Token
 import com.example.manageproxies.app.presentation.models.toModemUi
 import com.example.manageproxies.app.presentation.usecase.GetModemApiUseCase
 import com.example.manageproxies.app.presentation.usecase.GetTokenUseCase
 import com.example.manageproxies.app.presentation.usecase.SaveTokenUseCase
-import com.example.manageproxies.app.presentation.usecase.GetServerInfoApiUseCase
-import com.example.manageproxies.data.remote.Modem
-import com.example.manageproxies.data.remote.ServerInfo
+import com.example.manageproxies.app.presentation.usecase.GetServerApiUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -21,12 +21,12 @@ import javax.inject.Inject
 class SharedViewModel @Inject constructor(
     private val saveTokenUseCase: SaveTokenUseCase,
     private val getTokenUseCase: GetTokenUseCase,
-    private val getServerInfoApiUseCase: GetServerInfoApiUseCase,
+    private val getServerApiUseCase: GetServerApiUseCase,
     private val getModemApiUseCase: GetModemApiUseCase
 ) : ViewModel() {
 
-    private val _serverInfo = MutableLiveData<List<ServerInfo>>()
-    val serverInfo: LiveData<List<ServerInfo>> = _serverInfo
+    private val _serverInfo = MutableLiveData<List<ServerUi>>()
+    val serverInfo: LiveData<List<ServerUi>> = _serverInfo
 
     private val _modems = MutableLiveData<List<ModemUi>>()
     val modems: LiveData<List<ModemUi>> = _modems
@@ -40,10 +40,11 @@ class SharedViewModel @Inject constructor(
         return getTokenUseCase.execute()
     }
 
-    fun getServerInfoApi() {
+    fun getServerApi() {
         viewModelScope.launch {
             try {
-                val serverInfo = getServerInfoApiUseCase.execute()
+                val serverInfo = getServerApiUseCase.execute()
+                    .map { it.toServerUi() }
                 _serverInfo.postValue(serverInfo)
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -54,13 +55,17 @@ class SharedViewModel @Inject constructor(
     fun getModemApi() {
         viewModelScope.launch {
             try {
-                val modems = getModemApiUseCase.execute().map {
-                    it.toModemUi()
-                }
+                val modems = getModemApiUseCase.execute()
+                    .map { it.toModemUi() }
+                    .sortedByDescending { it.order != null }
                 _modems.postValue(modems)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
+    }
+
+    fun getAmountOfOrders(): Int {
+        return _modems.value?.count { it.order != null } ?: 0
     }
 }

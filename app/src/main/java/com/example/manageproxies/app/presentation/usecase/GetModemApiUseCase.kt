@@ -2,7 +2,6 @@ package com.example.manageproxies.app.presentation.usecase
 
 import com.example.manageproxies.app.repository.TokenRepository
 import com.example.manageproxies.data.remote.Modem
-import com.example.manageproxies.data.remote.ServerInfo
 import jakarta.inject.Inject
 
 class GetModemApiUseCase @Inject constructor(

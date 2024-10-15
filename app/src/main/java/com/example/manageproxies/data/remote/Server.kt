@@ -1,6 +1,6 @@
 package com.example.manageproxies.data.remote
 
-data class ServerInfo(
+data class Server(
     val server_id: String,
     val server_domain: String,
     val server_geo: String,
