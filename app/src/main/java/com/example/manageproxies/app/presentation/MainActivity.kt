@@ -3,13 +3,12 @@ package com.example.manageproxies.app.presentation
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.viewModels
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.manageproxies.app.presentation.screens.InputKeyScreen
-import com.example.manageproxies.app.presentation.screens.ListOfModemsScreen
+import com.example.manageproxies.app.presentation.screens.ServerInfoScreen
 import com.example.manageproxies.app.presentation.ui.theme.ManageProxiesTheme
 import com.example.manageproxies.app.presentation.vm.SharedViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -31,7 +30,7 @@ class MainActivity : ComponentActivity() {
                         InputKeyScreen(navController = navController, sharedViewModel)
                     }
                     composable("listOfModemsScreen") {
-                        ListOfModemsScreen(sharedViewModel)
+                        ServerInfoScreen(sharedViewModel)
                     }
                 }
             }

@@ -1,13 +1,14 @@
 package com.example.manageproxies.data.remote
 
 import retrofit2.http.GET
-import retrofit2.http.Headers
+import retrofit2.http.Header
 
 
 interface MyApi {
 
-    @Headers("Authorization: Bearer 4f45205a62f0410e120830278fc60ed6")
     @GET("api.html?command=load_servers")
-    suspend fun getModems() : List<ServerInfo>
+    suspend fun getServerInfo(@Header("Authorization") token: String) : List<Server>
 
+    @GET("api.html?command=load_modems")
+    suspend fun getModems(@Header("Authorization") token: String) : List<Modem>
 }

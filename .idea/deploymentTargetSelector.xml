@@ -4,10 +4,21 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2024-10-12T14:46:35.984328800Z">
+        <DropdownSelection timestamp="2024-10-15T13:59:55.732568400Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\Abno\.android\avd\Pixel_2_API_33_1.avd" />
+              <DeviceId pluginId="PhysicalDevice" identifier="serial=R58M71S93WM" />
+            </handle>
+          </Target>
+        </DropdownSelection>
+        <DialogSelection />
+      </SelectionState>
+      <SelectionState runConfigName="DefaultPreview">
+        <option name="selectionMode" value="DROPDOWN" />
+        <DropdownSelection timestamp="2024-10-15T13:59:50.153555900Z">
+          <Target type="DEFAULT_BOOT">
+            <handle>
+              <DeviceId pluginId="PhysicalDevice" identifier="serial=R58M71S93WM" />
             </handle>
           </Target>
         </DropdownSelection>
