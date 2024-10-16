@@ -1,5 +1,6 @@
 package com.example.manageproxies.app.presentation.screens
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -50,6 +51,7 @@ fun ServerInfoScreen(viewModel: SharedViewModel) {
             onClick = {
                 viewModel.getServerApi()
                 viewModel.getModemApi()
+                viewModel.setModemStatus()
             },
             modifier = Modifier
                 .padding(16.dp)
@@ -116,10 +118,10 @@ fun ModemRow(modem: ModemUi) {
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
+            if (modem.status == true) Text(text = "On") else Text(text = "Off")
             Text(text = modem.id.toString())
             Text(text = modem.name)
             Text(text = modem.operator)
-            Text(text = modem.order ?: "No Order")
         }
     }
 }
@@ -144,6 +146,7 @@ fun ServerRow(server: ServerUi, orders: Int) {
     }
 }
 
+
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
@@ -163,6 +166,7 @@ fun DefaultPreview() {
         ShowModems(
             listOf(
                 ModemUi(
+                    status = true,
                     id = 1,
                     name = "name",
                     operator = "operator",

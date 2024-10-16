@@ -4,6 +4,7 @@ import com.example.manageproxies.data.remote.Modem
 
 
 data class ModemUi(
+    var status: Boolean?,
     val id: Int,
     val name: String,
     val operator: String,
@@ -11,6 +12,7 @@ data class ModemUi(
 )
 
 fun Modem.toModemUi() = ModemUi(
+    status = null,
     id = eid.toInt(),
     name = name,
     operator = operator,
