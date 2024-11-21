@@ -1,6 +1,5 @@
 package com.example.manageproxies.app.presentation.vm
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -16,7 +15,6 @@ import com.example.manageproxies.app.presentation.usecase.GetModemIpApiUseCase
 import com.example.manageproxies.app.presentation.usecase.GetServerApiUseCase
 import com.example.manageproxies.app.presentation.usecase.GetTokenUseCase
 import com.example.manageproxies.app.presentation.usecase.SaveTokenUseCase
-import com.example.manageproxies.data.remote.ModemIp
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -31,11 +29,19 @@ class SharedViewModel @Inject constructor(
     private val getModemIpApiUseCase: GetModemIpApiUseCase
 ) : ViewModel() {
 
+    @Volatile
+    private var isProcessing = false
+
     private val _serverInfo = MutableLiveData<List<ServerUi>>()
     val serverInfo: LiveData<List<ServerUi>> = _serverInfo
 
     private val _modems = MutableLiveData<List<ModemUi>>()
     val modems: LiveData<List<ModemUi>> = _modems
+
+    init {
+        getServerApi()
+        getModemApi()
+    }
 
     fun saveToken(token: Token) {
         saveTokenUseCase.execute(token)
@@ -76,20 +82,27 @@ class SharedViewModel @Inject constructor(
     }
 
     fun setModemStatus() {
+        if (isProcessing) return
         viewModelScope.launch(Dispatchers.IO) {
+            isProcessing = true
             try {
-                val updatedModems = _modems.value?.map { modem ->
-                    val isActive = !getModemIpApiUseCase.execute(modem.id.toString())
-                        .toModemIpUi().eid.isNullOrEmpty()
-                    modem.copy(status = isActive)
-                }
-                updatedModems?.let {
-                    _modems.postValue(it)
+                val currentModems = _modems.value?.toMutableList() ?: return@launch
+
+                for ((index, modem) in currentModems.withIndex()) {
+                    try {
+                        val isActive = !getModemIpApiUseCase.execute(modem.id.toString())
+                            .toModemIpUi().eid.isNullOrEmpty()
+
+                        currentModems[index] = modem.copy(status = isActive)
+
+                        _modems.postValue(currentModems.toList())
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
-            }
+            e.printStackTrace() //
         }
-        Log.i("okhttp", "VIEWMODEL ${_modems.value!!.first().status}")
+        }
     }
 }
