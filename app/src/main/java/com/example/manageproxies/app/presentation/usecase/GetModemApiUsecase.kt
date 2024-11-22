@@ -4,7 +4,7 @@ import com.example.manageproxies.app.repository.TokenRepository
 import com.example.manageproxies.data.remote.Modem
 import jakarta.inject.Inject
 
-class GetModemApiUseCase @Inject constructor(
+class GetModemApiUsecase @Inject constructor(
     private val tokenRepository: TokenRepository, ) {
 
     suspend fun execute(): List<Modem> {

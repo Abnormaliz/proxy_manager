@@ -1,7 +1,9 @@
 package com.example.manageproxies.app.di
 
 import android.content.Context
+import androidx.room.Room
 import com.example.manageproxies.app.repository.TokenRepository
+import com.example.manageproxies.data.database.ServerDatabase
 import com.example.manageproxies.data.remote.MyApi
 import com.example.manageproxies.data.repository.TokenRepositoryImpl
 import dagger.Module
@@ -22,8 +24,8 @@ class DataModule {
 
     @Provides
     @Singleton
-    fun provideTokenRepository(@ApplicationContext context: Context, api: MyApi) : TokenRepository {
-        return TokenRepositoryImpl(context = context, api = api)
+    fun provideTokenRepository(@ApplicationContext context: Context, api: MyApi, db: ServerDatabase): TokenRepository {
+        return TokenRepositoryImpl(context = context, api = api, db = db)
     }
 
     @Provides
@@ -44,4 +46,14 @@ class DataModule {
         logging.setLevel(HttpLoggingInterceptor.Level.BODY)
         return logging
     }
+
+    @Provides
+    @Singleton
+    fun provideDatabase(
+        @ApplicationContext app: Context
+    ) = Room.databaseBuilder(
+        app,
+        ServerDatabase::class.java,
+        "server_db"
+    ).build()
 }

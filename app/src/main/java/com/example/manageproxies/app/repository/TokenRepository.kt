@@ -1,5 +1,6 @@
 package com.example.manageproxies.app.repository
 
+import com.example.manageproxies.app.presentation.models.ServerUi
 import com.example.manageproxies.app.presentation.models.Token
 import com.example.manageproxies.data.remote.Modem
 import com.example.manageproxies.data.remote.ModemIp
@@ -16,4 +17,6 @@ interface TokenRepository {
     suspend fun getModemsFromApi(token: String): List<Modem>
 
     suspend fun getModemIpFromApi(token: String, eid: String?): ModemIp
+
+    suspend fun saveServerToDatabase(server: List<ServerUi>): Boolean
 }

@@ -10,11 +10,12 @@ import com.example.manageproxies.app.presentation.models.Token
 import com.example.manageproxies.app.presentation.models.toModemIpUi
 import com.example.manageproxies.app.presentation.models.toModemUi
 import com.example.manageproxies.app.presentation.models.toServerUi
-import com.example.manageproxies.app.presentation.usecase.GetModemApiUseCase
-import com.example.manageproxies.app.presentation.usecase.GetModemIpApiUseCase
-import com.example.manageproxies.app.presentation.usecase.GetServerApiUseCase
-import com.example.manageproxies.app.presentation.usecase.GetTokenUseCase
-import com.example.manageproxies.app.presentation.usecase.SaveTokenUseCase
+import com.example.manageproxies.app.presentation.usecase.GetModemApiUsecase
+import com.example.manageproxies.app.presentation.usecase.GetModemIpApiUsecase
+import com.example.manageproxies.app.presentation.usecase.GetServerApiUsecase
+import com.example.manageproxies.app.presentation.usecase.GetTokenUsecase
+import com.example.manageproxies.app.presentation.usecase.SaveServerToDatabaseUsecase
+import com.example.manageproxies.app.presentation.usecase.SaveTokenUsecase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -22,11 +23,12 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SharedViewModel @Inject constructor(
-    private val saveTokenUseCase: SaveTokenUseCase,
-    private val getTokenUseCase: GetTokenUseCase,
-    private val getServerApiUseCase: GetServerApiUseCase,
-    private val getModemApiUseCase: GetModemApiUseCase,
-    private val getModemIpApiUseCase: GetModemIpApiUseCase
+    private val saveTokenUseCase: SaveTokenUsecase,
+    private val getTokenUseCase: GetTokenUsecase,
+    private val getServerApiUseCase: GetServerApiUsecase,
+    private val getModemApiUseCase: GetModemApiUsecase,
+    private val getModemIpApiUseCase: GetModemIpApiUsecase,
+    private val saveServerToDatabaseUsecase: SaveServerToDatabaseUsecase
 ) : ViewModel() {
 
     @Volatile
@@ -52,12 +54,20 @@ class SharedViewModel @Inject constructor(
         return getTokenUseCase.execute()
     }
 
+    fun saveServer(server: List<ServerUi>) {
+        viewModelScope.launch(Dispatchers.IO) {
+            saveServerToDatabaseUsecase.execute(server)
+        }
+
+    }
+
     fun getServerApi() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val serverInfo = getServerApiUseCase.execute()
                     .map { it.toServerUi() }
                 _serverInfo.postValue(serverInfo)
+                saveServer(serverInfo)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -101,8 +111,8 @@ class SharedViewModel @Inject constructor(
                     }
                 }
             } catch (e: Exception) {
-            e.printStackTrace() //
-        }
+                e.printStackTrace() //
+            }
         }
     }
 }
