@@ -37,11 +37,12 @@ import com.example.manageproxies.app.presentation.vm.SharedViewModel
 @Composable
 fun ServerInfoScreen(viewModel: SharedViewModel) {
     val server by viewModel.serverInfo.observeAsState()
-    val orders = viewModel.getAmountOfOrders()
+    val orders by viewModel.orders.observeAsState()
+    val selfOrders by viewModel.selfOrders.observeAsState()
 
     Box(modifier = Modifier.fillMaxWidth()) {
         Column {
-            ShowServers(server, orders)
+            ShowServers(server, orders, selfOrders)
         }
         Button(
             onClick = {
@@ -63,7 +64,7 @@ fun ServerInfoScreen(viewModel: SharedViewModel) {
 }
 
 @Composable
-fun ShowServers(serverInfo: List<ServerUi>?, orders: Int) {
+fun ShowServers(serverInfo: List<ServerUi>?, orders: Int?, selfOrders: Int?) {
     LazyColumn(
         modifier = Modifier
             .wrapContentSize(),
@@ -72,14 +73,14 @@ fun ShowServers(serverInfo: List<ServerUi>?, orders: Int) {
     ) {
         serverInfo?.let {
             items(it.size) { index ->
-                ServerRow(server = it[index], orders = orders)
+                ServerRow(server = it[index], orders = orders, selfOrders = selfOrders)
             }
         }
     }
 }
 
 @Composable
-fun ServerRow(server: ServerUi, orders: Int) {
+fun ServerRow(server: ServerUi, orders: Int?, selfOrders: Int?) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -94,6 +95,7 @@ fun ServerRow(server: ServerUi, orders: Int) {
             Text(text = "Geo: ${server.geo}")
             Text(text = "Income: ${server.approximateIncome}")
             Text(text = "Orders: $orders")
+            Text(text = "SelfOrders: $selfOrders")
         }
     }
 }

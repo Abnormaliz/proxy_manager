@@ -4,7 +4,7 @@ data class Modem(
     val eid: String,
     val name: String,
     val local_ip: String,
-    val proxy_exp: String,
+    val proxy_exp: String?,
     val operator: String,
     val number: String,
     val props: String,
@@ -15,5 +15,7 @@ data class Modem(
     val modem: String,
     val local_server_ip: String,
     val admin_ip: String,
-    val check_err_count: String
+    val check_err_count: String,
+    val proxy_self: String?,
+    val proxy_testing: String?
 )

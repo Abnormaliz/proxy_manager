@@ -1,5 +1,6 @@
 package com.example.manageproxies.app.presentation.vm
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -19,6 +20,7 @@ import com.example.manageproxies.app.presentation.usecase.SaveTokenUsecase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -40,10 +42,26 @@ class SharedViewModel @Inject constructor(
     private val _modems = MutableLiveData<List<ModemUi>>()
     val modems: LiveData<List<ModemUi>> = _modems
 
+    private val _orders = MutableLiveData<Int>()
+    val orders: LiveData<Int> = _orders
+
+    private val _selfOrders = MutableLiveData<Int>()
+    val selfOrders: LiveData<Int> = _selfOrders
+
+
     init {
-        getServerApi()
-        getModemApi()
+        viewModelScope.launch(Dispatchers.IO) {
+            getServerApi()
+            getModemApi()
+
+            withContext(Dispatchers.Main) {
+                _orders.value = modems.value?.count { it.order != null } ?: 0
+                _selfOrders.value = modems.value?.count { it.selfOrder == true } ?: 0
+            }
+        }
+
     }
+
 
     fun saveToken(token: Token) {
         saveTokenUseCase.execute(token)
@@ -61,35 +79,29 @@ class SharedViewModel @Inject constructor(
 
     }
 
-    fun getServerApi() {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val serverInfo = getServerApiUseCase.execute()
-                    .map { it.toServerUi() }
-                _serverInfo.postValue(serverInfo)
-                saveServer(serverInfo)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
+    suspend fun getServerApi() {
+        try {
+            val serverInfo = getServerApiUseCase.execute()
+                .map { it.toServerUi() }
+            _serverInfo.postValue(serverInfo)
+            saveServer(serverInfo)
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
-    fun getModemApi() {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val modems = getModemApiUseCase.execute()
-                    .map { it.toModemUi() }
-                    .sortedByDescending { it.order != null }
-                _modems.postValue(modems)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
+    suspend fun getModemApi() {
+        try {
+            val modems = getModemApiUseCase.execute()
+                .map { it.toModemUi() }
+                .sortedByDescending { it.order != null }
+            _modems.postValue(modems)
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
+
     }
 
-    fun getAmountOfOrders(): Int {
-        return _modems.value?.count { it.order != null } ?: 0
-    }
 
     fun setModemStatus() {
         if (isProcessing) return
