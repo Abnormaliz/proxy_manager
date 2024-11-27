@@ -5,7 +5,7 @@ import com.example.manageproxies.data.remote.Modem
 
 data class ModemUi(
     var status: Boolean?,
-    val id: Int,
+    val eid: Int,
     val name: String,
     val operator: String,
     val order: String?,
@@ -15,10 +15,10 @@ data class ModemUi(
 
 fun Modem.toModemUi() = ModemUi(
     status = null,
-    id = eid.toInt(),
+    eid = eid.toInt(),
     name = name,
     operator = operator,
-    order = if (proxy_exp != null) "Ordered" else null,
+    order = if (proxy_exp != null && proxy_self != "1") "Ordered" else null,
     selfOrder = proxy_self == "1",
     testOrder = proxy_testing == "1"
 )

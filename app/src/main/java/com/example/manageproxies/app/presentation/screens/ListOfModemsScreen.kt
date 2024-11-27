@@ -42,7 +42,7 @@ fun ModemsInfoScreen(viewModel: SharedViewModel) {
         }
         Button(
             onClick = {
-                viewModel.setModemStatus()
+                viewModel.setModemStatusNew()
             },
             modifier = Modifier
                 .padding(16.dp)
@@ -102,7 +102,7 @@ fun ModemRow(modem: ModemUi) {
             if (modem.status == true)
                 Image(painterResource(R.drawable.status_on), contentDescription = "statusOn")
             else Image(painterResource(R.drawable.status_off), contentDescription = "statusOff")
-            Text(text = modem.id.toString())
+            Text(text = modem.eid.toString())
             Text(text = modem.name)
             Text(text = modem.operator)
         }

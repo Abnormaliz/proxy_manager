@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">ManageProxies</string>
+    <string name="server_row_id">ID сервера: %1$s</string>
+    <string name="server_row_geo">Гео: %1$s</string>
+    <string name="server_row_income">Доход: %1$s</string>
+    <string name="server_row_all_orders">Всего заказов: %1$s</string>
+    <string name="server_row_clients">Клиенты с сайта: %1$s</string>
+    <string name="server_row_self_orders">Выдано вручную: %1$s</string>
 </resources>

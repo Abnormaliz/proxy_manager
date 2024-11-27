@@ -1,6 +1,5 @@
 package com.example.manageproxies.app.presentation.vm
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -33,8 +32,6 @@ class SharedViewModel @Inject constructor(
     private val saveServerToDatabaseUsecase: SaveServerToDatabaseUsecase
 ) : ViewModel() {
 
-    @Volatile
-    private var isProcessing = false
 
     private val _serverInfo = MutableLiveData<List<ServerUi>>()
     val serverInfo: LiveData<List<ServerUi>> = _serverInfo
@@ -48,6 +45,8 @@ class SharedViewModel @Inject constructor(
     private val _selfOrders = MutableLiveData<Int>()
     val selfOrders: LiveData<Int> = _selfOrders
 
+    private val _allOrders = MutableLiveData<Int>()
+    val allOrders: LiveData<Int> = _allOrders
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
@@ -57,6 +56,7 @@ class SharedViewModel @Inject constructor(
             withContext(Dispatchers.Main) {
                 _orders.value = modems.value?.count { it.order != null } ?: 0
                 _selfOrders.value = modems.value?.count { it.selfOrder == true } ?: 0
+                _allOrders.value = orders.value?.plus(selfOrders.value!!) ?: 0
             }
         }
 
@@ -81,8 +81,7 @@ class SharedViewModel @Inject constructor(
 
     suspend fun getServerApi() {
         try {
-            val serverInfo = getServerApiUseCase.execute()
-                .map { it.toServerUi() }
+            val serverInfo = getServerApiUseCase.execute().map { it.toServerUi() }
             _serverInfo.postValue(serverInfo)
             saveServer(serverInfo)
         } catch (e: Exception) {
@@ -92,8 +91,7 @@ class SharedViewModel @Inject constructor(
 
     suspend fun getModemApi() {
         try {
-            val modems = getModemApiUseCase.execute()
-                .map { it.toModemUi() }
+            val modems = getModemApiUseCase.execute().map { it.toModemUi() }
                 .sortedByDescending { it.order != null }
             _modems.postValue(modems)
         } catch (e: Exception) {
@@ -102,29 +100,28 @@ class SharedViewModel @Inject constructor(
 
     }
 
-
-    fun setModemStatus() {
-        if (isProcessing) return
+    fun setModemStatusNew() {
         viewModelScope.launch(Dispatchers.IO) {
-            isProcessing = true
             try {
-                val currentModems = _modems.value?.toMutableList() ?: return@launch
-
-                for ((index, modem) in currentModems.withIndex()) {
-                    try {
-                        val isActive = !getModemIpApiUseCase.execute(modem.id.toString())
-                            .toModemIpUi().eid.isNullOrEmpty()
-
-                        currentModems[index] = modem.copy(status = isActive)
-
-                        _modems.postValue(currentModems.toList())
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
+                val currentModems = modems.value
+                if (currentModems.isNullOrEmpty()) {
+                    return@launch
                 }
+                val eids = currentModems.map { it.eid }
+                val eidsString = eids.joinToString(",")
+                val allIps = getModemIpApiUseCase.execute(eidsString).toModemIpUi()
+                val ipsMap = allIps.eid ?: emptyMap()
+                val updatedModems = currentModems.map { modem ->
+                    if (ipsMap.containsKey(modem.eid.toString())) {
+                        modem.copy(status = true)
+                    } else modem
+                }
+                _modems.postValue(updatedModems)
             } catch (e: Exception) {
-                e.printStackTrace() //
+                e.printStackTrace()
             }
         }
+
+
     }
 }

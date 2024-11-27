@@ -27,6 +27,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.manageproxies.R
@@ -39,32 +44,18 @@ fun ServerInfoScreen(viewModel: SharedViewModel) {
     val server by viewModel.serverInfo.observeAsState()
     val orders by viewModel.orders.observeAsState()
     val selfOrders by viewModel.selfOrders.observeAsState()
+    val allOrders by viewModel.allOrders.observeAsState()
 
     Box(modifier = Modifier.fillMaxWidth()) {
         Column {
-            ShowServers(server, orders, selfOrders)
-        }
-        Button(
-            onClick = {
-            },
-            modifier = Modifier
-                .padding(16.dp)
-                .align(Alignment.BottomEnd)
-                .size(56.dp)
-                .clip(CircleShape)
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.refresh),
-                contentDescription = "Refresh",
-                contentScale = ContentScale.Fit
-            )
+            ShowServers(server, orders, selfOrders, allOrders)
         }
     }
 
 }
 
 @Composable
-fun ShowServers(serverInfo: List<ServerUi>?, orders: Int?, selfOrders: Int?) {
+fun ShowServers(serverInfo: List<ServerUi>?, orders: Int?, selfOrders: Int?, allOrders: Int?) {
     LazyColumn(
         modifier = Modifier
             .wrapContentSize(),
@@ -73,14 +64,19 @@ fun ShowServers(serverInfo: List<ServerUi>?, orders: Int?, selfOrders: Int?) {
     ) {
         serverInfo?.let {
             items(it.size) { index ->
-                ServerRow(server = it[index], orders = orders, selfOrders = selfOrders)
+                ServerRow(
+                    server = it[index],
+                    orders = orders,
+                    selfOrders = selfOrders,
+                    allOrders = allOrders
+                )
             }
         }
     }
 }
 
 @Composable
-fun ServerRow(server: ServerUi, orders: Int?, selfOrders: Int?) {
+fun ServerRow(server: ServerUi, orders: Int?, selfOrders: Int?, allOrders: Int?) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -91,11 +87,53 @@ fun ServerRow(server: ServerUi, orders: Int?, selfOrders: Int?) {
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Column {
-            Text(text = "ID: ${server.id}")
-            Text(text = "Geo: ${server.geo}")
-            Text(text = "Income: ${server.approximateIncome}")
-            Text(text = "Orders: $orders")
-            Text(text = "SelfOrders: $selfOrders")
+            Text(
+                text = buildAnnotatedString {
+                    append(stringResource(R.string.server_row_id, ""))
+                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                    append(server.id.toString())
+                    }
+                }
+            )
+            Text(
+                text = buildAnnotatedString {
+                    append(stringResource(R.string.server_row_geo, ""))
+                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                    append(server.geo)
+                    }
+                }
+            )
+            Text(
+                text = buildAnnotatedString {
+                    append(stringResource(R.string.server_row_income, ""))
+                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                        append(server.approximateIncome)
+                    }
+                }
+            )
+            Text(
+                text = buildAnnotatedString {
+                    append(stringResource(R.string.server_row_all_orders, ""))
+                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                        append(allOrders.toString())
+                    }
+                }
+            )
+            Text(
+                text = buildAnnotatedString {
+                    append(stringResource(R.string.server_row_clients, ""))
+                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                        append(orders.toString())
+                    }
+                }
+            )
+            Text(
+                text = buildAnnotatedString {
+                    append(stringResource(R.string.server_row_self_orders, ""))
+                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                        append(selfOrders.toString())
+                    }
+                })
         }
     }
 }
