@@ -1,16 +1,19 @@
 package com.example.manageproxies.data.repository
 
 import android.content.Context
+import com.example.manageproxies.app.presentation.models.ServerUi
 import com.example.manageproxies.app.presentation.models.Token
 import com.example.manageproxies.app.repository.TokenRepository
+import com.example.manageproxies.data.database.ServerDatabase
 import com.example.manageproxies.data.remote.Modem
+import com.example.manageproxies.data.remote.ModemIp
 import com.example.manageproxies.data.remote.MyApi
 import com.example.manageproxies.data.remote.Server
 
 private const val SHARED_PREFS_TOKEN = "shared_prefs_token"
 private const val KEY_NAME = "Token"
 
-class TokenRepositoryImpl(private val context: Context, private val api: MyApi): TokenRepository {
+class TokenRepositoryImpl(private val context: Context, private val api: MyApi, private val db: ServerDatabase): TokenRepository {
 
     private val sharedPreferences = context.getSharedPreferences(SHARED_PREFS_TOKEN, Context.MODE_PRIVATE)
 
@@ -30,6 +33,15 @@ class TokenRepositoryImpl(private val context: Context, private val api: MyApi):
 
     override suspend fun getModemsFromApi(token: String): List<Modem> {
         return api.getModems(token)
+    }
+
+    override suspend fun getModemIpFromApi(token: String, eid: String?): ModemIp {
+        return api.getModemIp(token, eid)
+    }
+
+    override suspend fun saveServerToDatabase(server: List<ServerUi>): Boolean {
+        db.serverDao().addServer(server)
+        return true
     }
 
 }

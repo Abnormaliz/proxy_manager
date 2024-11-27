@@ -1,8 +1,12 @@
 package com.example.manageproxies.app.presentation.models
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import com.example.manageproxies.data.remote.Server
 
+@Entity(tableName = "server_list")
 data class ServerUi(
+    @PrimaryKey(autoGenerate = false)
     val id: Int,
     val geo: String,
     val approximateIncome: String,

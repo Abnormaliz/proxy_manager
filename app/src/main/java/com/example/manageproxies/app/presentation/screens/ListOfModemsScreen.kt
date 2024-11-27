@@ -27,29 +27,22 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.manageproxies.R
 import com.example.manageproxies.app.presentation.models.ModemUi
-import com.example.manageproxies.app.presentation.models.ServerUi
 import com.example.manageproxies.app.presentation.vm.SharedViewModel
 
-
 @Composable
-fun ServerInfoScreen(viewModel: SharedViewModel) {
-    val server by viewModel.serverInfo.observeAsState()
+fun ModemsInfoScreen(viewModel: SharedViewModel) {
     val modems by viewModel.modems.observeAsState()
-    val orders = viewModel.getAmountOfOrders()
 
     Box(modifier = Modifier.fillMaxWidth()) {
         Column {
-            ShowServers(server, orders)
             ShowModems(modems)
         }
         Button(
             onClick = {
-                viewModel.getServerApi()
-                viewModel.getModemApi()
+                viewModel.setModemStatusNew()
             },
             modifier = Modifier
                 .padding(16.dp)
@@ -60,7 +53,6 @@ fun ServerInfoScreen(viewModel: SharedViewModel) {
             Image(
                 painter = painterResource(id = R.drawable.refresh),
                 contentDescription = "Refresh",
-                modifier = Modifier.size(50.dp),
                 contentScale = ContentScale.Fit
             )
         }
@@ -68,21 +60,6 @@ fun ServerInfoScreen(viewModel: SharedViewModel) {
 
 }
 
-@Composable
-fun ShowServers(serverInfo: List<ServerUi>?, orders: Int) {
-    LazyColumn(
-        modifier = Modifier
-            .wrapContentSize(),
-        contentPadding = PaddingValues(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        serverInfo?.let {
-            items(it.size) { index ->
-                ServerRow(server = it[index], orders = orders)
-            }
-        }
-    }
-}
 
 @Composable
 fun ShowModems(modems: List<ModemUi>?) {
@@ -100,6 +77,7 @@ fun ShowModems(modems: List<ModemUi>?) {
     }
 }
 
+
 @Composable
 fun ModemRow(modem: ModemUi) {
     Row(
@@ -107,7 +85,12 @@ fun ModemRow(modem: ModemUi) {
             .fillMaxWidth()
             .clip(RoundedCornerShape(8.dp))
             .border(1.dp, Color.Black, RoundedCornerShape(8.dp))
-            .background(color = if (modem.order == "Ordered") colorResource(R.color.darkGreen) else Color.LightGray)
+            .background(color = colorResource(R.color.block))
+            .then(
+                if (modem.order == "Ordered") {
+                    Modifier.background(color = colorResource(R.color.ordered))
+                } else Modifier
+            )
             .padding(8.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
@@ -116,59 +99,12 @@ fun ModemRow(modem: ModemUi) {
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(text = modem.id.toString())
+            if (modem.status == true)
+                Image(painterResource(R.drawable.status_on), contentDescription = "statusOn")
+            else Image(painterResource(R.drawable.status_off), contentDescription = "statusOff")
+            Text(text = modem.eid.toString())
             Text(text = modem.name)
             Text(text = modem.operator)
-            Text(text = modem.order ?: "No Order")
         }
-    }
-}
-
-@Composable
-fun ServerRow(server: ServerUi, orders: Int) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(8.dp))
-            .border(1.dp, Color.Black, RoundedCornerShape(8.dp))
-            .background(color = Color.LightGray)
-            .padding(8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Column {
-            Text(text = "ID: ${server.id}")
-            Text(text = "Geo: ${server.geo}")
-            Text(text = "Income: ${server.approximateIncome}")
-            Text(text = "Orders: $orders")
-        }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    Column {
-        Button(onClick = { }) {
-            Text("Get Modems")
-        }
-        ShowServers(
-            listOf(
-                ServerUi(
-                    id = 1,
-                    geo = "geo",
-                    approximateIncome = "income",
-                )
-            ), 1
-        )
-        ShowModems(
-            listOf(
-                ModemUi(
-                    id = 1,
-                    name = "name",
-                    operator = "operator",
-                    order = "order"
-                )
-            )
-        )
     }
 }
