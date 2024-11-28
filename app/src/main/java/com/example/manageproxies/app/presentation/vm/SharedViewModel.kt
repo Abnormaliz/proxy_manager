@@ -1,9 +1,15 @@
 package com.example.manageproxies.app.presentation.vm
 
+import android.app.Application
+import android.content.Context
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.impl.WorkManagerImpl
 import com.example.manageproxies.app.presentation.models.ModemUi
 import com.example.manageproxies.app.presentation.models.ServerUi
 import com.example.manageproxies.app.presentation.models.Token
@@ -16,6 +22,7 @@ import com.example.manageproxies.app.presentation.usecase.GetServerApiUsecase
 import com.example.manageproxies.app.presentation.usecase.GetTokenUsecase
 import com.example.manageproxies.app.presentation.usecase.SaveServerToDatabaseUsecase
 import com.example.manageproxies.app.presentation.usecase.SaveTokenUsecase
+import com.example.manageproxies.data.workmanager.UploadWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -29,7 +36,8 @@ class SharedViewModel @Inject constructor(
     private val getServerApiUseCase: GetServerApiUsecase,
     private val getModemApiUseCase: GetModemApiUsecase,
     private val getModemIpApiUseCase: GetModemIpApiUsecase,
-    private val saveServerToDatabaseUsecase: SaveServerToDatabaseUsecase
+    private val saveServerToDatabaseUsecase: SaveServerToDatabaseUsecase,
+    private val application: Application
 ) : ViewModel() {
 
 
@@ -52,6 +60,7 @@ class SharedViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             getServerApi()
             getModemApi()
+            startUploadWork()
 
             withContext(Dispatchers.Main) {
                 _orders.value = modems.value?.count { it.order != null } ?: 0
@@ -62,7 +71,11 @@ class SharedViewModel @Inject constructor(
 
     }
 
-
+    fun startUploadWork() {
+        val workRequest = OneTimeWorkRequestBuilder<UploadWorker>().build()
+        WorkManager.getInstance(application.applicationContext).enqueue(workRequest)
+        Log.i("UploadWorkerTag", "WorkRequest enqueued")
+    }
     fun saveToken(token: Token) {
         saveTokenUseCase.execute(token)
 

@@ -8,7 +8,7 @@ plugins {
 
 android {
     namespace = "com.example.manageproxies"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.manageproxies"
@@ -85,6 +85,12 @@ dependencies {
     implementation("androidx.compose.runtime:runtime-livedata:1.7.4")
     implementation("androidx.compose.ui:ui-text-google-fonts:1.7.4")
     ksp("com.google.dagger:hilt-compiler:2.52")
+
+    // Work manager
+    implementation("androidx.work:work-runtime-ktx:2.10.0")
+    implementation("androidx.work:work-multiprocess:2.10.0")
+    implementation("androidx.hilt:hilt-work:1.2.0")
+
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
