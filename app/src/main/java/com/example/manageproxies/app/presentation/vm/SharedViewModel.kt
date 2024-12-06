@@ -56,6 +56,9 @@ class SharedViewModel @Inject constructor(
     private val _allOrders = MutableLiveData<Int>()
     val allOrders: LiveData<Int> = _allOrders
 
+    private val _testOrders = MutableLiveData<Int>()
+    val testOrders: LiveData<Int> = _testOrders
+
     init {
         viewModelScope.launch(Dispatchers.IO) {
             getServerApi()
@@ -65,6 +68,7 @@ class SharedViewModel @Inject constructor(
             withContext(Dispatchers.Main) {
                 _orders.value = modems.value?.count { it.order != null } ?: 0
                 _selfOrders.value = modems.value?.count { it.selfOrder == true } ?: 0
+                _testOrders.value = modems.value?.count { it.testOrder == true } ?: 0
                 _allOrders.value = orders.value?.plus(selfOrders.value!!) ?: 0
             }
         }
@@ -72,10 +76,12 @@ class SharedViewModel @Inject constructor(
     }
 
     fun startUploadWork() {
+        Log.i("TestWorker", "Enqueueing worker")
         val workRequest = OneTimeWorkRequestBuilder<UploadWorker>().build()
         WorkManager.getInstance(application.applicationContext).enqueue(workRequest)
-        Log.i("UploadWorkerTag", "WorkRequest enqueued")
+        Log.i("TestWorker", "Worker enqueued")
     }
+
     fun saveToken(token: Token) {
         saveTokenUseCase.execute(token)
 

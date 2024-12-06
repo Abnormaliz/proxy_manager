@@ -68,6 +68,7 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.8.3")
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
     implementation("androidx.compose.material:material:1.7.5")
+    implementation("androidx.startup:startup-runtime:1.2.0")
 
     // Room dependencies
     implementation("androidx.room:room-runtime:2.6.1")

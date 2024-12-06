@@ -3,7 +3,6 @@ package com.example.manageproxies.app
 import android.app.Application
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
-import androidx.work.WorkerFactory
 import dagger.hilt.android.HiltAndroidApp
 import jakarta.inject.Inject
 
@@ -15,9 +14,7 @@ class App : Application(), Configuration.Provider {
     lateinit var workerFactory: HiltWorkerFactory
 
     override val workManagerConfiguration: Configuration
-        get() = Configuration.Builder()
-            .setWorkerFactory(workerFactory)
-            .build()
+        get() = Configuration.Builder().setWorkerFactory(workerFactory).build()
 
 
 }

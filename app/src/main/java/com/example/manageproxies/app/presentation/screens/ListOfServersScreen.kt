@@ -1,8 +1,10 @@
 package com.example.manageproxies.app.presentation.screens
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,21 +12,19 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -45,20 +45,27 @@ fun ServerInfoScreen(viewModel: SharedViewModel) {
     val orders by viewModel.orders.observeAsState()
     val selfOrders by viewModel.selfOrders.observeAsState()
     val allOrders by viewModel.allOrders.observeAsState()
+    val testOrders by viewModel.testOrders.observeAsState()
+
 
     Box(modifier = Modifier.fillMaxWidth()) {
         Column {
-            ShowServers(server, orders, selfOrders, allOrders)
+            ShowServers(server, orders, selfOrders, allOrders, testOrders)
         }
     }
 
 }
 
 @Composable
-fun ShowServers(serverInfo: List<ServerUi>?, orders: Int?, selfOrders: Int?, allOrders: Int?) {
+fun ShowServers(
+    serverInfo: List<ServerUi>?,
+    orders: Int?,
+    selfOrders: Int?,
+    allOrders: Int?,
+    testOrders: Int?
+) {
     LazyColumn(
-        modifier = Modifier
-            .wrapContentSize(),
+        modifier = Modifier.wrapContentSize(),
         contentPadding = PaddingValues(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
@@ -68,7 +75,8 @@ fun ShowServers(serverInfo: List<ServerUi>?, orders: Int?, selfOrders: Int?, all
                     server = it[index],
                     orders = orders,
                     selfOrders = selfOrders,
-                    allOrders = allOrders
+                    allOrders = allOrders,
+                    testOrders = testOrders
                 )
             }
         }
@@ -76,7 +84,8 @@ fun ShowServers(serverInfo: List<ServerUi>?, orders: Int?, selfOrders: Int?, all
 }
 
 @Composable
-fun ServerRow(server: ServerUi, orders: Int?, selfOrders: Int?, allOrders: Int?) {
+fun ServerRow(server: ServerUi, orders: Int?, selfOrders: Int?, allOrders: Int?, testOrders: Int?) {
+    var isExpanded by remember { mutableStateOf(false) }
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -87,53 +96,53 @@ fun ServerRow(server: ServerUi, orders: Int?, selfOrders: Int?, allOrders: Int?)
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Column {
-            Text(
-                text = buildAnnotatedString {
-                    append(stringResource(R.string.server_row_id, ""))
-                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+            Text(text = buildAnnotatedString {
+                append(stringResource(R.string.server_row_id, ""))
+                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
                     append(server.id.toString())
-                    }
                 }
-            )
-            Text(
-                text = buildAnnotatedString {
-                    append(stringResource(R.string.server_row_geo, ""))
-                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+            })
+            Text(text = buildAnnotatedString {
+                append(stringResource(R.string.server_row_geo, ""))
+                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
                     append(server.geo)
-                    }
                 }
-            )
-            Text(
-                text = buildAnnotatedString {
-                    append(stringResource(R.string.server_row_income, ""))
-                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                        append(server.approximateIncome)
-                    }
+            })
+            Text(text = buildAnnotatedString {
+                append(stringResource(R.string.server_row_income, ""))
+                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                    append(server.approximateIncome)
                 }
-            )
-            Text(
-                text = buildAnnotatedString {
-                    append(stringResource(R.string.server_row_all_orders, ""))
-                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                        append(allOrders.toString())
-                    }
+            })
+            Text(text = buildAnnotatedString {
+                append(stringResource(R.string.server_row_all_orders, ""))
+                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                    append(allOrders.toString())
                 }
-            )
-            Text(
-                text = buildAnnotatedString {
-                    append(stringResource(R.string.server_row_clients, ""))
-                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                        append(orders.toString())
-                    }
+            }, modifier = Modifier.clickable { isExpanded = !isExpanded })
+            AnimatedVisibility(visible = isExpanded) {
+                Column {
+                    Text(text = buildAnnotatedString {
+                        append(stringResource(R.string.server_row_clients, ""))
+                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                            append(orders.toString())
+                        }
+                    })
+                    Text(text = buildAnnotatedString {
+                        append(stringResource(R.string.server_row_self_orders, ""))
+                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                            append(selfOrders.toString())
+                        }
+                    })
+                    Text(text = buildAnnotatedString {
+                        append(stringResource(R.string.server_row_test_orders, ""))
+                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                            append(testOrders.toString())
+                        }
+                    })
                 }
-            )
-            Text(
-                text = buildAnnotatedString {
-                    append(stringResource(R.string.server_row_self_orders, ""))
-                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                        append(selfOrders.toString())
-                    }
-                })
+            }
+
         }
     }
 }
@@ -151,9 +160,7 @@ fun ModemRowPreview() {
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+            modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Image(painterResource(R.drawable.status_off), contentDescription = "statusOn")
             Text(text = "123123")

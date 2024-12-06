@@ -2,6 +2,7 @@ package com.example.manageproxies.app.di
 
 import android.content.Context
 import androidx.room.Room
+import com.example.manageproxies.app.presentation.models.DemoWorker
 import com.example.manageproxies.app.repository.TokenRepository
 import com.example.manageproxies.data.database.ServerDatabase
 import com.example.manageproxies.data.remote.MyApi
@@ -24,7 +25,11 @@ class DataModule {
 
     @Provides
     @Singleton
-    fun provideTokenRepository(@ApplicationContext context: Context, api: MyApi, db: ServerDatabase): TokenRepository {
+    fun provideTokenRepository(
+        @ApplicationContext context: Context,
+        api: MyApi,
+        db: ServerDatabase
+    ): TokenRepository {
         return TokenRepositoryImpl(context = context, api = api, db = db)
     }
 
@@ -35,8 +40,7 @@ class DataModule {
             .baseUrl("https://mobileproxy.space/")
             .addConverterFactory(GsonConverterFactory.create())
             .client(OkHttpClient.Builder().addInterceptor(provideLoggingInterceptor()).build())
-            .build()
-            .create(MyApi::class.java)
+            .build().create(MyApi::class.java)
     }
 
     @Provides
@@ -52,8 +56,12 @@ class DataModule {
     fun provideDatabase(
         @ApplicationContext app: Context
     ) = Room.databaseBuilder(
-        app,
-        ServerDatabase::class.java,
-        "server_db"
+        app, ServerDatabase::class.java, "server_db"
     ).build()
+
+    @Singleton
+    @Provides
+    fun provideDemoWorker(): DemoWorker {
+        return DemoWorker()
+    }
 }
