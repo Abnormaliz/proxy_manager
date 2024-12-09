@@ -9,15 +9,22 @@ import com.example.manageproxies.data.remote.Modem
 import com.example.manageproxies.data.remote.ModemIp
 import com.example.manageproxies.data.remote.MyApi
 import com.example.manageproxies.data.remote.Server
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
 
 private const val SHARED_PREFS_TOKEN = "shared_prefs_token"
 private const val KEY_NAME = "Token"
 
-class TokenRepositoryImpl(private val context: Context, private val api: MyApi, private val db: ServerDatabase): TokenRepository {
+class TokenRepositoryImpl @Inject constructor(
+    @ApplicationContext private val context: Context,
+    private val api: MyApi,
+    private val db: ServerDatabase
+) : TokenRepository {
 
-    private val sharedPreferences = context.getSharedPreferences(SHARED_PREFS_TOKEN, Context.MODE_PRIVATE)
+    private val sharedPreferences =
+        context.getSharedPreferences(SHARED_PREFS_TOKEN, Context.MODE_PRIVATE)
 
-    override fun saveToken(token: Token) : Boolean{
+    override fun saveToken(token: Token): Boolean {
         sharedPreferences.edit().putString(KEY_NAME, token.value).apply()
         return true
     }

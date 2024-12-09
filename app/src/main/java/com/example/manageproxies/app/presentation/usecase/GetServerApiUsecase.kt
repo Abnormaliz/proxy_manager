@@ -2,7 +2,7 @@ package com.example.manageproxies.app.presentation.usecase
 
 import com.example.manageproxies.app.repository.TokenRepository
 import com.example.manageproxies.data.remote.Server
-import jakarta.inject.Inject
+import javax.inject.Inject
 
 
 class GetServerApiUsecase @Inject constructor(

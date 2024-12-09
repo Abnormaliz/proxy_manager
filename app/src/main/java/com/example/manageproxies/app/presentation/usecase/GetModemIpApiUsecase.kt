@@ -2,7 +2,7 @@ package com.example.manageproxies.app.presentation.usecase
 
 import com.example.manageproxies.app.repository.TokenRepository
 import com.example.manageproxies.data.remote.ModemIp
-import jakarta.inject.Inject
+import javax.inject.Inject
 
 class GetModemIpApiUsecase @Inject constructor(
     private val tokenRepository: TokenRepository

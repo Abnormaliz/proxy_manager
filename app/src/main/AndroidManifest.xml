@@ -25,6 +25,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="com.example.manageproxies.androidx-startup"
+        android:exported="false"
+        tools:node="remove">
+    </provider>
     </application>
 
 </manifest>

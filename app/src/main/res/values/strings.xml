@@ -6,4 +6,5 @@
     <string name="server_row_all_orders">Всего заказов: %1$s</string>
     <string name="server_row_clients">Клиенты с сайта: %1$s</string>
     <string name="server_row_self_orders">Выдано вручную: %1$s</string>
+    <string name="server_row_test_orders">Выдано на тест: %1$s</string>
 </resources>
