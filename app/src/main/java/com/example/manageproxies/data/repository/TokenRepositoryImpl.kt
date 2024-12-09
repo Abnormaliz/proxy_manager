@@ -10,7 +10,7 @@ import com.example.manageproxies.data.remote.ModemIp
 import com.example.manageproxies.data.remote.MyApi
 import com.example.manageproxies.data.remote.Server
 import dagger.hilt.android.qualifiers.ApplicationContext
-import jakarta.inject.Inject
+import javax.inject.Inject
 
 private const val SHARED_PREFS_TOKEN = "shared_prefs_token"
 private const val KEY_NAME = "Token"

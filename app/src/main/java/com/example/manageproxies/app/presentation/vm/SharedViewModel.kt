@@ -60,10 +60,10 @@ class SharedViewModel @Inject constructor(
     val testOrders: LiveData<Int> = _testOrders
 
     init {
+        startUploadWork()
         viewModelScope.launch(Dispatchers.IO) {
             getServerApi()
             getModemApi()
-            startUploadWork()
 
             withContext(Dispatchers.Main) {
                 _orders.value = modems.value?.count { it.order != null } ?: 0

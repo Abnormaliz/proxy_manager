@@ -6,6 +6,8 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.example.manageproxies.app.presentation.models.DemoWorker
+import com.example.manageproxies.app.presentation.models.toServerUi
+import com.example.manageproxies.app.repository.TokenRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 
@@ -13,7 +15,7 @@ import dagger.assisted.AssistedInject
 class UploadWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParams: WorkerParameters,
-    private val demoWorker: DemoWorker
+    private val tokenRepository: TokenRepository
 ) :
     CoroutineWorker(appContext, workerParams) {
     init {
@@ -22,9 +24,8 @@ class UploadWorker @AssistedInject constructor(
 
     override suspend fun doWork(): Result {
         Log.i("TestWorker", "Worker is running")
-        for (i in 0..demoWorker.c) {
-            Log.i("TestWorker", "$i")
-        }
+        val servers = tokenRepository.getServerFromApi(tokenRepository.getToken().toString()).map { it.toServerUi() }
+        tokenRepository.saveServerToDatabase(servers)
         return Result.success()
     }
 }
