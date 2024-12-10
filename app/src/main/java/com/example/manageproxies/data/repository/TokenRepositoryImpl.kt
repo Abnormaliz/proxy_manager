@@ -51,4 +51,8 @@ class TokenRepositoryImpl @Inject constructor(
         return true
     }
 
+    override fun getServerFromDatabase(serverId: Int) {
+        db.serverDao().getServerById(serverId)
+    }
+
 }

@@ -1,15 +1,10 @@
 package com.example.manageproxies.app.presentation.vm
 
 import android.app.Application
-import android.content.Context
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
-import androidx.work.impl.WorkManagerImpl
 import com.example.manageproxies.app.presentation.models.ModemUi
 import com.example.manageproxies.app.presentation.models.ServerUi
 import com.example.manageproxies.app.presentation.models.Token
@@ -19,10 +14,11 @@ import com.example.manageproxies.app.presentation.models.toServerUi
 import com.example.manageproxies.app.presentation.usecase.GetModemApiUsecase
 import com.example.manageproxies.app.presentation.usecase.GetModemIpApiUsecase
 import com.example.manageproxies.app.presentation.usecase.GetServerApiUsecase
+import com.example.manageproxies.app.presentation.usecase.GetServerFromDatabaseUseCase
 import com.example.manageproxies.app.presentation.usecase.GetTokenUsecase
 import com.example.manageproxies.app.presentation.usecase.SaveServerToDatabaseUsecase
 import com.example.manageproxies.app.presentation.usecase.SaveTokenUsecase
-import com.example.manageproxies.data.workmanager.UploadWorker
+import com.example.manageproxies.app.presentation.usecase.ScheduledSavingServerInfoToDatabaseUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -37,12 +33,17 @@ class SharedViewModel @Inject constructor(
     private val getModemApiUseCase: GetModemApiUsecase,
     private val getModemIpApiUseCase: GetModemIpApiUsecase,
     private val saveServerToDatabaseUsecase: SaveServerToDatabaseUsecase,
-    private val application: Application
+    private val application: Application,
+    private val scheduledSavingServerInfoToDatabaseUseCase: ScheduledSavingServerInfoToDatabaseUseCase,
+    private val getServerFromDatabaseUseCase: GetServerFromDatabaseUseCase
 ) : ViewModel() {
 
 
     private val _serverInfo = MutableLiveData<List<ServerUi>>()
     val serverInfo: LiveData<List<ServerUi>> = _serverInfo
+
+    private val _serverInfoFromDb = MutableLiveData<List<ServerUi>>()
+    val serverInfoFromDb: LiveData<List<ServerUi>> = _serverInfoFromDb
 
     private val _modems = MutableLiveData<List<ModemUi>>()
     val modems: LiveData<List<ModemUi>> = _modems
@@ -60,10 +61,12 @@ class SharedViewModel @Inject constructor(
     val testOrders: LiveData<Int> = _testOrders
 
     init {
-        startUploadWork()
+        scheduledSavingServerInfoToDatabaseUseCase.scheduleDailyWork()
         viewModelScope.launch(Dispatchers.IO) {
             getServerApi()
             getModemApi()
+            getServerFromDatabase(701)
+
 
             withContext(Dispatchers.Main) {
                 _orders.value = modems.value?.count { it.order != null } ?: 0
@@ -73,13 +76,6 @@ class SharedViewModel @Inject constructor(
             }
         }
 
-    }
-
-    fun startUploadWork() {
-        Log.i("TestWorker", "Enqueueing worker")
-        val workRequest = OneTimeWorkRequestBuilder<UploadWorker>().build()
-        WorkManager.getInstance(application.applicationContext).enqueue(workRequest)
-        Log.i("TestWorker", "Worker enqueued")
     }
 
     fun saveToken(token: Token) {
@@ -98,11 +94,14 @@ class SharedViewModel @Inject constructor(
 
     }
 
+    fun getServerFromDatabase(servedId: Int) {
+        getServerFromDatabaseUseCase.execute(servedId)
+    }
+
     suspend fun getServerApi() {
         try {
             val serverInfo = getServerApiUseCase.execute().map { it.toServerUi() }
             _serverInfo.postValue(serverInfo)
-            saveServer(serverInfo)
         } catch (e: Exception) {
             e.printStackTrace()
         }

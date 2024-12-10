@@ -12,6 +12,8 @@ interface TokenRepository {
 
     fun getToken(): Token
 
+    fun getServerFromDatabase(serverId: Int)
+
     suspend fun getServerFromApi(token: String): List<Server>
 
     suspend fun getModemsFromApi(token: String): List<Modem>

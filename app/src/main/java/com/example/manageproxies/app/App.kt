@@ -7,7 +7,6 @@ import androidx.work.Configuration
 import androidx.work.ListenableWorker
 import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
-import com.example.manageproxies.app.presentation.models.DemoWorker
 import com.example.manageproxies.app.repository.TokenRepository
 import com.example.manageproxies.data.workmanager.UploadWorker
 import dagger.hilt.android.HiltAndroidApp

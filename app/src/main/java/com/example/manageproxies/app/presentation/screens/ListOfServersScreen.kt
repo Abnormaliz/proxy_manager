@@ -46,11 +46,12 @@ fun ServerInfoScreen(viewModel: SharedViewModel) {
     val selfOrders by viewModel.selfOrders.observeAsState()
     val allOrders by viewModel.allOrders.observeAsState()
     val testOrders by viewModel.testOrders.observeAsState()
+    val serverDb by viewModel.serverInfoFromDb.observeAsState()
 
 
     Box(modifier = Modifier.fillMaxWidth()) {
         Column {
-            ShowServers(server, orders, selfOrders, allOrders, testOrders)
+            ShowServers(server, orders, selfOrders, allOrders, testOrders, serverDb)
         }
     }
 
@@ -62,7 +63,8 @@ fun ShowServers(
     orders: Int?,
     selfOrders: Int?,
     allOrders: Int?,
-    testOrders: Int?
+    testOrders: Int?,
+    servedDb: List<ServerUi>?
 ) {
     LazyColumn(
         modifier = Modifier.wrapContentSize(),
@@ -76,7 +78,8 @@ fun ShowServers(
                     orders = orders,
                     selfOrders = selfOrders,
                     allOrders = allOrders,
-                    testOrders = testOrders
+                    testOrders = testOrders,
+                    servedDb = it[index]
                 )
             }
         }
@@ -84,7 +87,7 @@ fun ShowServers(
 }
 
 @Composable
-fun ServerRow(server: ServerUi, orders: Int?, selfOrders: Int?, allOrders: Int?, testOrders: Int?) {
+fun ServerRow(server: ServerUi, orders: Int?, selfOrders: Int?, allOrders: Int?, testOrders: Int?, servedDb: ServerUi) {
     var isExpanded by remember { mutableStateOf(false) }
     Row(
         modifier = Modifier
@@ -114,6 +117,7 @@ fun ServerRow(server: ServerUi, orders: Int?, selfOrders: Int?, allOrders: Int?,
                     append(server.approximateIncome)
                 }
             })
+            Text(text = servedDb.approximateIncome)
             Text(text = buildAnnotatedString {
                 append(stringResource(R.string.server_row_all_orders, ""))
                 withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
