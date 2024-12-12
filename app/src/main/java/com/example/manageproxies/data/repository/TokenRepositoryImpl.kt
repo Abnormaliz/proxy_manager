@@ -1,6 +1,7 @@
 package com.example.manageproxies.data.repository
 
 import android.content.Context
+import com.example.manageproxies.app.presentation.models.DailyStatistic
 import com.example.manageproxies.app.presentation.models.ServerUi
 import com.example.manageproxies.app.presentation.models.Token
 import com.example.manageproxies.app.repository.TokenRepository
@@ -55,4 +56,12 @@ class TokenRepositoryImpl @Inject constructor(
         db.serverDao().getServerById(serverId)
     }
 
+    override suspend fun saveDailyStatisticToDatabase(dailyStatistic: List<DailyStatistic>): Boolean {
+        db.serverDao().saveDailyStatistic(dailyStatistic)
+        return true
+    }
+
+    override suspend fun getDailyStatisticFromDatabase(currentDate: String): DailyStatistic? {
+        return db.serverDao().getDailyStatisticByDate(currentDate)
+    }
 }

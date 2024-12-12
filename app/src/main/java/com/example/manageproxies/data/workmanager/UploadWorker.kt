@@ -8,6 +8,8 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
+import com.example.manageproxies.app.presentation.models.DailyStatistic
+import com.example.manageproxies.app.presentation.models.toDailyStatistic
 import com.example.manageproxies.app.presentation.models.toServerUi
 import com.example.manageproxies.app.repository.TokenRepository
 import dagger.assisted.Assisted
@@ -30,8 +32,24 @@ class UploadWorker @AssistedInject constructor(
         try {
             val token = tokenRepository.getToken().value.toString()
             Log.i("TestWorker", token)
-            val servers = tokenRepository.getServerFromApi(token).map { it.toServerUi() }
-            tokenRepository.saveServerToDatabase(servers)
+            val statistics = try {
+                tokenRepository.getServerFromApi(token).map { it.toDailyStatistic() }
+            } catch (e: Exception) {
+                Log.e("TestWorker", "Error fetching statistics: ${e.message}")
+                return Result.failure()
+            }
+            Log.i("TestWorker", "Statistics: $statistics")
+            val currentDate = getCurrentDate()
+            Log.i("TestWorker", "Date - $currentDate")
+            val statisticsWithDate = statistics.map { it.copy(date = currentDate) }
+            Log.i("TestWorker", "StatisticWithDate - $statisticsWithDate")
+            try {
+                tokenRepository.saveDailyStatisticToDatabase(statisticsWithDate)
+                Log.i("TestWorker", "Statistics saved to database")
+            } catch (e: Exception) {
+                Log.e("TestWorker", "Error saving to database: ${e.message}")
+                return Result.failure()
+            }
             scheduleNextWork()
             Log.i("TestWorker", "Worker finished")
             return Result.success()
@@ -53,5 +71,10 @@ class UploadWorker @AssistedInject constructor(
                 ExistingWorkPolicy.REPLACE,
                 workRequest
             )
+    }
+
+    private fun getCurrentDate(): String {
+        val formatter = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
+        return formatter.format(java.util.Date())
     }
 }

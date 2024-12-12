@@ -1,20 +1,20 @@
 package com.example.manageproxies.app.presentation.vm
 
-import android.app.Application
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.manageproxies.app.presentation.models.DailyStatistic
 import com.example.manageproxies.app.presentation.models.ModemUi
 import com.example.manageproxies.app.presentation.models.ServerUi
 import com.example.manageproxies.app.presentation.models.Token
 import com.example.manageproxies.app.presentation.models.toModemIpUi
 import com.example.manageproxies.app.presentation.models.toModemUi
 import com.example.manageproxies.app.presentation.models.toServerUi
+import com.example.manageproxies.app.presentation.usecase.GetDailyStatisticFromDatabase
 import com.example.manageproxies.app.presentation.usecase.GetModemApiUsecase
 import com.example.manageproxies.app.presentation.usecase.GetModemIpApiUsecase
 import com.example.manageproxies.app.presentation.usecase.GetServerApiUsecase
-import com.example.manageproxies.app.presentation.usecase.GetServerFromDatabaseUseCase
 import com.example.manageproxies.app.presentation.usecase.GetTokenUsecase
 import com.example.manageproxies.app.presentation.usecase.SaveServerToDatabaseUsecase
 import com.example.manageproxies.app.presentation.usecase.SaveTokenUsecase
@@ -33,17 +33,16 @@ class SharedViewModel @Inject constructor(
     private val getModemApiUseCase: GetModemApiUsecase,
     private val getModemIpApiUseCase: GetModemIpApiUsecase,
     private val saveServerToDatabaseUsecase: SaveServerToDatabaseUsecase,
-    private val application: Application,
     private val scheduledSavingServerInfoToDatabaseUseCase: ScheduledSavingServerInfoToDatabaseUseCase,
-    private val getServerFromDatabaseUseCase: GetServerFromDatabaseUseCase
+    private val getDailyStatisticFromDatabase: GetDailyStatisticFromDatabase
 ) : ViewModel() {
 
 
     private val _serverInfo = MutableLiveData<List<ServerUi>>()
     val serverInfo: LiveData<List<ServerUi>> = _serverInfo
 
-    private val _serverInfoFromDb = MutableLiveData<List<ServerUi>>()
-    val serverInfoFromDb: LiveData<List<ServerUi>> = _serverInfoFromDb
+    private val _dailyStatistic = MutableLiveData<DailyStatistic>()
+    val dailyStatistic: LiveData<DailyStatistic> = _dailyStatistic
 
     private val _modems = MutableLiveData<List<ModemUi>>()
     val modems: LiveData<List<ModemUi>> = _modems
@@ -65,7 +64,7 @@ class SharedViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             getServerApi()
             getModemApi()
-            getServerFromDatabase(701)
+            getDailyStatistic()
 
 
             withContext(Dispatchers.Main) {
@@ -87,15 +86,9 @@ class SharedViewModel @Inject constructor(
         return getTokenUseCase.execute()
     }
 
-    fun saveServer(server: List<ServerUi>) {
-        viewModelScope.launch(Dispatchers.IO) {
-            saveServerToDatabaseUsecase.execute(server)
-        }
-
-    }
-
-    fun getServerFromDatabase(servedId: Int) {
-        getServerFromDatabaseUseCase.execute(servedId)
+    suspend fun getDailyStatistic() {
+        val currentDate = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()).format(java.util.Date())
+        _dailyStatistic.postValue(getDailyStatisticFromDatabase.execute(currentDate))
     }
 
     suspend fun getServerApi() {

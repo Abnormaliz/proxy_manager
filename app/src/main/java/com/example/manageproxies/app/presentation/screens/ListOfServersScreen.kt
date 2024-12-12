@@ -35,6 +35,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.manageproxies.R
+import com.example.manageproxies.app.presentation.models.DailyStatistic
 import com.example.manageproxies.app.presentation.models.ServerUi
 import com.example.manageproxies.app.presentation.vm.SharedViewModel
 
@@ -46,12 +47,12 @@ fun ServerInfoScreen(viewModel: SharedViewModel) {
     val selfOrders by viewModel.selfOrders.observeAsState()
     val allOrders by viewModel.allOrders.observeAsState()
     val testOrders by viewModel.testOrders.observeAsState()
-    val serverDb by viewModel.serverInfoFromDb.observeAsState()
+    val dailyStatistic by viewModel.dailyStatistic.observeAsState()
 
 
     Box(modifier = Modifier.fillMaxWidth()) {
         Column {
-            ShowServers(server, orders, selfOrders, allOrders, testOrders, serverDb)
+            ShowServers(server, orders, selfOrders, allOrders, testOrders, dailyStatistic?.income)
         }
     }
 
@@ -64,7 +65,7 @@ fun ShowServers(
     selfOrders: Int?,
     allOrders: Int?,
     testOrders: Int?,
-    servedDb: List<ServerUi>?
+    dailyIncome: String?
 ) {
     LazyColumn(
         modifier = Modifier.wrapContentSize(),
@@ -79,7 +80,7 @@ fun ShowServers(
                     selfOrders = selfOrders,
                     allOrders = allOrders,
                     testOrders = testOrders,
-                    servedDb = it[index]
+                    dailyIncome = dailyIncome
                 )
             }
         }
@@ -87,7 +88,7 @@ fun ShowServers(
 }
 
 @Composable
-fun ServerRow(server: ServerUi, orders: Int?, selfOrders: Int?, allOrders: Int?, testOrders: Int?, servedDb: ServerUi) {
+fun ServerRow(server: ServerUi, orders: Int?, selfOrders: Int?, allOrders: Int?, testOrders: Int?, dailyIncome: String?) {
     var isExpanded by remember { mutableStateOf(false) }
     Row(
         modifier = Modifier
@@ -117,7 +118,12 @@ fun ServerRow(server: ServerUi, orders: Int?, selfOrders: Int?, allOrders: Int?,
                     append(server.approximateIncome)
                 }
             })
-            Text(text = servedDb.approximateIncome)
+            Text(text = buildAnnotatedString {
+                append(stringResource(R.string.server_row_income, ""))
+                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                    append(dailyIncome)
+                }
+            })
             Text(text = buildAnnotatedString {
                 append(stringResource(R.string.server_row_all_orders, ""))
                 withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
