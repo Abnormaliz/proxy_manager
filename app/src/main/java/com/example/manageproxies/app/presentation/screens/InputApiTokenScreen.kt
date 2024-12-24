@@ -12,29 +12,39 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.example.manageproxies.app.presentation.models.Token
-import com.example.manageproxies.app.presentation.vm.SharedViewModel
+import com.example.manageproxies.R
+import com.example.manageproxies.app.presentation.vm.InputApiTokenScreenViewModel
 
 @Composable
-fun InputKeyScreen(viewModel: SharedViewModel) {
-    var apiKey by remember { mutableStateOf(TextFieldValue(viewModel.getToken().value.toString())) }
+fun InputApiTokenScreen(viewModel: InputApiTokenScreenViewModel) {
+
+    val apiTokenName by viewModel.apiTokenName.collectAsState()
+    val apiTokenValue by viewModel.apiTokenValue.collectAsState()
+
 
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center
     ) {
         TextField(
-            value = apiKey,
-            onValueChange = { apiKey = it },
-            label = { Text("Enter API Key") },
+            value = apiTokenName,
+            onValueChange = { viewModel.onNameChanged(it) },
+            label = { Text(stringResource(R.string.api_token_name_hint)) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+                .background(MaterialTheme.colorScheme.surface)
+        )
+
+        TextField(
+            value = apiTokenValue,
+            onValueChange = { viewModel.onValueChanged(it) },
+            label = { Text(stringResource(R.string.api_token_value_hint)) },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
@@ -43,12 +53,12 @@ fun InputKeyScreen(viewModel: SharedViewModel) {
         Spacer(modifier = Modifier.height(16.dp))
         Button(
             onClick = {
-                viewModel.saveToken(Token(apiKey.text))
+                viewModel.saveApiTokenToDatabase()
             }, modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            Text("Accept")
+            Text(stringResource(R.string.api_token_add_button))
         }
     }
 }

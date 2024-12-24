@@ -1,7 +1,5 @@
 package com.example.manageproxies.app.di
 
-import com.example.manageproxies.app.presentation.usecase.GetTokenUsecase
-import com.example.manageproxies.app.presentation.usecase.SaveTokenUsecase
 import com.example.manageproxies.app.repository.TokenRepository
 import dagger.Module
 import dagger.Provides

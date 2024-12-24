@@ -1,10 +1,19 @@
 <resources>
+    <!-- App-level strings -->
     <string name="app_name">ManageProxies</string>
-    <string name="server_row_id">ID сервера: %1$s</string>
-    <string name="server_row_geo">Гео: %1$s</string>
-    <string name="server_row_income">Доход: %1$s</string>
-    <string name="server_row_all_orders">Всего заказов: %1$s</string>
-    <string name="server_row_clients">Клиенты с сайта: %1$s</string>
-    <string name="server_row_self_orders">Выдано вручную: %1$s</string>
-    <string name="server_row_test_orders">Выдано на тест: %1$s</string>
+
+    <!-- API Token Screen -->
+    <string name="api_token_name_hint">Введите наименование сервера</string>
+    <string name="api_token_value_hint">Введите api-токен</string>
+    <string name="api_token_add_button">Добавить сервер</string>
+
+    <!-- Server Row Details -->
+    <string name="server_id">ID сервера: %1$s</string>
+    <string name="server_geo">Гео: %1$s</string>
+    <string name="server_income">Доход: %1$s</string>
+    <string name="server_modems_total">Всего модемов: %1$s</string>
+    <string name="server_orders_total">Всего заказов: %1$s</string>
+    <string name="server_orders_clients">Клиенты с сайта: %1$s</string>
+    <string name="server_orders_self">Выдано вручную: %1$s</string>
+    <string name="server_orders_test">Выдано на тест: %1$s</string>
 </resources>
