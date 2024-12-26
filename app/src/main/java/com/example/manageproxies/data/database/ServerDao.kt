@@ -6,16 +6,16 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.manageproxies.app.presentation.models.ApiToken
 import com.example.manageproxies.app.presentation.models.DailyStatistic
-import com.example.manageproxies.app.presentation.models.ServerInfoUi
+import com.example.manageproxies.app.presentation.models.ServerUi
 
 @Dao
 interface ServerDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun addServer(server: List<ServerInfoUi>)
+    suspend fun addServer(server: List<ServerUi>)
 
     @Query("SELECT * FROM server_list WHERE id = :serverId")
-    fun getServerById(serverId: Int): ServerInfoUi
+    fun getServerById(serverId: Int): ServerUi
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun saveDailyStatistic(dailyStatistic: List<DailyStatistic>)
@@ -23,7 +23,7 @@ interface ServerDao {
     @Query("SELECT * FROM daily_statistic_list WHERE date = :currentDate LIMIT 1")
     suspend fun getDailyStatisticByDate(currentDate: String): DailyStatistic?
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun saveApiToken(apiToken: ApiToken)
 
     @Query("SELECT * FROM apitokens_list")

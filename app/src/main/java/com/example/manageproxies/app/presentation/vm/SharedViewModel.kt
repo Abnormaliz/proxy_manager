@@ -18,8 +18,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SharedViewModel @Inject constructor(
-    private val saveTokenUseCase: SaveTokenUsecase,
-    private val getTokenUseCase: GetTokenUsecase,
     private val getModemIpApiUseCase: GetModemIpApiUsecase,
     private val scheduledSavingServerInfoToDatabaseUseCase: ScheduledSavingServerInfoToDatabaseUseCase,
     private val setServerInfoUseCase: SetServerInfoUsecase
@@ -33,53 +31,43 @@ class SharedViewModel @Inject constructor(
     val modems: LiveData<List<ModemUi>> = _modems
 
 
-    init {
-        scheduledSavingServerInfoToDatabaseUseCase.scheduleDailyWork()
-        viewModelScope.launch(Dispatchers.IO) {
-            getServerApi()
-
-        }
-
-    }
-
-    fun saveToken(apiToken: ApiToken) {
-        saveTokenUseCase.execute(apiToken)
+//    init {
+//        scheduledSavingServerInfoToDatabaseUseCase.scheduleDailyWork()
+//        viewModelScope.launch(Dispatchers.IO) {
+//            getServerApi()
+//
+//        }
 
     }
 
-    fun getToken(): ApiToken {
-        return getTokenUseCase.execute()
-    }
+//    suspend fun getServerApi() {
+//        try {
+//            val serverInfo = setServerInfoUseCase.getServerInfo()
+//            _serverInfo.postValue(serverInfo)
+//        } catch (e: Exception) {
+//            e.printStackTrace()
+//        }
+//    }
 
-    suspend fun getServerApi() {
-        try {
-            val serverInfo = setServerInfoUseCase.getServerInfo()
-            _serverInfo.postValue(serverInfo)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
-
-    fun setModemStatusNew() {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val currentModems = modems.value
-                if (currentModems.isNullOrEmpty()) {
-                    return@launch
-                }
-                val eids = currentModems.map { it.eid }
-                val eidsString = eids.joinToString(",")
-                val allIps = getModemIpApiUseCase.execute(eidsString).toModemIpUi()
-                val ipsMap = allIps.eid ?: emptyMap()
-                val updatedModems = currentModems.map { modem ->
-                    if (ipsMap.containsKey(modem.eid.toString())) {
-                        modem.copy(status = true)
-                    } else modem
-                }
-                _modems.postValue(updatedModems)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-    }
-}
+//    fun setModemStatusNew() {
+//        viewModelScope.launch(Dispatchers.IO) {
+//            try {
+//                val currentModems = modems.value
+//                if (currentModems.isNullOrEmpty()) {
+//                    return@launch
+//                }
+//                val eids = currentModems.map { it.eid }
+//                val eidsString = eids.joinToString(",")
+//                val allIps = getModemIpApiUseCase.execute(eidsString).toModemIpUi()
+//                val ipsMap = allIps.eid ?: emptyMap()
+//                val updatedModems = currentModems.map { modem ->
+//                    if (ipsMap.containsKey(modem.eid.toString())) {
+//                        modem.copy(status = true)
+//                    } else modem
+//                }
+//                _modems.postValue(updatedModems)
+//            } catch (e: Exception) {
+//                e.printStackTrace()
+//            }
+//        }
+//    }

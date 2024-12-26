@@ -1,5 +1,7 @@
 package com.example.manageproxies.app.presentation.screens
 
+import android.health.connect.datatypes.units.Length
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,6 +18,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.manageproxies.R
@@ -26,6 +29,8 @@ fun InputApiTokenScreen(viewModel: InputApiTokenScreenViewModel) {
 
     val apiTokenName by viewModel.apiTokenName.collectAsState()
     val apiTokenValue by viewModel.apiTokenValue.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
 
 
     Column(
@@ -53,7 +58,14 @@ fun InputApiTokenScreen(viewModel: InputApiTokenScreenViewModel) {
         Spacer(modifier = Modifier.height(16.dp))
         Button(
             onClick = {
-                viewModel.saveApiTokenToDatabase()
+                viewModel.checkAndSaveApiToken(
+                    onSuccess = { message ->
+                        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                    },
+                    onError = { message ->
+                        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                    }
+                )
             }, modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)

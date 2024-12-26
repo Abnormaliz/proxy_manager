@@ -22,9 +22,9 @@ class UploadWorker @AssistedInject constructor(
 
     override suspend fun doWork(): Result {
         try {
-            val token = tokenRepository.getToken().value.toString()
+            val token = tokenRepository.getApiTokenByName("1")
             val statistics = try {
-                tokenRepository.getServerFromApi(token).map { it.toDailyStatistic() }
+                tokenRepository.getServerFromApi(token.value.toString()).map { it.toDailyStatistic() }
             } catch (e: Exception) {
                 return Result.failure()
             }

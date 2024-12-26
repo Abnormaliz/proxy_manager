@@ -9,6 +9,6 @@ class GetModemIpApiUsecase @Inject constructor(
 ) {
 
     suspend fun execute(eid: String?): ModemIp {
-        return tokenRepository.getModemIpFromApi(tokenRepository.getToken().value.toString(), eid)
+        return tokenRepository.getModemIpFromApi(tokenRepository.getApiTokenByName("1").value.toString(), eid)
     }
 }

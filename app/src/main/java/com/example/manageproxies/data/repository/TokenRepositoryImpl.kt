@@ -1,9 +1,10 @@
 package com.example.manageproxies.data.repository
 
 import android.content.Context
+import com.example.manageproxies.app.presentation.models.ApiToken
 import com.example.manageproxies.app.presentation.models.DailyStatistic
 import com.example.manageproxies.app.presentation.models.ServerInfoUi
-import com.example.manageproxies.app.presentation.models.ApiToken
+import com.example.manageproxies.app.presentation.models.ServerUi
 import com.example.manageproxies.app.repository.TokenRepository
 import com.example.manageproxies.data.database.ServerDatabase
 import com.example.manageproxies.data.remote.Modem
@@ -11,6 +12,8 @@ import com.example.manageproxies.data.remote.ModemIp
 import com.example.manageproxies.data.remote.MyApi
 import com.example.manageproxies.data.remote.Server
 import dagger.hilt.android.qualifiers.ApplicationContext
+import okhttp3.ResponseBody
+import retrofit2.Response
 import javax.inject.Inject
 
 class TokenRepositoryImpl @Inject constructor(
@@ -23,6 +26,10 @@ class TokenRepositoryImpl @Inject constructor(
         return api.getServerInfo(token)
     }
 
+    override suspend fun checkApiToken(token: String): Response<ResponseBody> {
+        return api.checkApiToken(token)
+    }
+
     override suspend fun getModemsFromApi(token: String): List<Modem> {
         return api.getModems(token)
     }
@@ -31,12 +38,12 @@ class TokenRepositoryImpl @Inject constructor(
         return api.getModemIp(token, eid)
     }
 
-    override suspend fun saveServerToDatabase(server: List<ServerInfoUi>): Boolean {
+    override suspend fun saveServerToDatabase(server: List<ServerUi>): Boolean {
         db.serverDao().addServer(server)
         return true
     }
 
-    override fun getServerFromDatabase(serverId: Int): ServerInfoUi {
+    override fun getServerFromDatabase(serverId: Int): ServerUi {
         return db.serverDao().getServerById(serverId)
     }
 
@@ -61,4 +68,6 @@ class TokenRepositoryImpl @Inject constructor(
     override suspend fun getApiTokenByName(apiTokenName: String): ApiToken {
         return db.serverDao().getApiTokenByName(apiTokenName)
     }
+
+
 }

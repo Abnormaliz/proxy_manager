@@ -9,14 +9,4 @@ import dagger.hilt.android.components.ViewModelComponent
 @Module
 @InstallIn(ViewModelComponent::class)
 class AppModule {
-
-    @Provides
-    fun provideSaveTokenUseCase(tokenRepository: TokenRepository): SaveTokenUsecase {
-        return SaveTokenUsecase(tokenRepository = tokenRepository)
-    }
-
-    @Provides
-    fun provideGetTokenUseCase(tokenRepository: TokenRepository): GetTokenUsecase {
-        return GetTokenUsecase(tokenRepository = tokenRepository)
-    }
 }

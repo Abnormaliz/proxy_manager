@@ -42,7 +42,7 @@ fun ModemsInfoScreen(viewModel: SharedViewModel) {
         }
         Button(
             onClick = {
-                viewModel.setModemStatusNew()
+//                viewModel.setModemStatusNew()
             },
             modifier = Modifier
                 .padding(16.dp)

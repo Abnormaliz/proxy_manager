@@ -80,7 +80,7 @@ fun BottomNavigationBar() {
         ),
         Screen(
             "Add",
-            "AddServerScreen",
+            "InputApiTokenScreen",
             selectedIcon = Icons.Filled.AddCircle,
             unselectedIcon = Icons.Default.AddCircle
         )
