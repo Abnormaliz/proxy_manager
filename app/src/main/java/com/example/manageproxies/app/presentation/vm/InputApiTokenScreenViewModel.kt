@@ -4,18 +4,15 @@ import android.database.sqlite.SQLiteConstraintException
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.manageproxies.app.presentation.models.ApiToken
-import com.example.manageproxies.app.presentation.models.UiState
+import com.example.manageproxies.app.presentation.models.InputApiTokenIntent
+import com.example.manageproxies.app.presentation.models.InputApiTokenState
 import com.example.manageproxies.app.presentation.usecase.CheckApiTokenUsecase
 import com.example.manageproxies.app.presentation.usecase.SaveApiTokenToDatabaseUsecase
 import com.example.manageproxies.data.remote.ApiResult
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -25,78 +22,90 @@ class InputApiTokenScreenViewModel @Inject constructor(
     private val checkApiTokenUsecase: CheckApiTokenUsecase
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow<UiState>(UiState.Loading)
-    val uiState: StateFlow<UiState> = _uiState
+    private val _uiState = MutableStateFlow<InputApiTokenState>(InputApiTokenState.Input())
+    val uiState: StateFlow<InputApiTokenState> = _uiState.asStateFlow()
 
-    private val _apiTokenName = MutableStateFlow("")
-    val apiTokenName: StateFlow<String> = _apiTokenName.asStateFlow()
 
-    private val _apiTokenValue = MutableStateFlow("")
-    val apiTokenValue: StateFlow<String> = _apiTokenValue.asStateFlow()
+    fun handleIntent(intent: InputApiTokenIntent) {
+        when (intent) {
+            is InputApiTokenIntent.NameChanged -> {
+                val currentState = (_uiState.value as? InputApiTokenState.Input) ?: return
+                _uiState.value =
+                    currentState.copy(name = intent.newValue, errors = currentState.errors - "name")
+            }
 
-    private val apiTokenFlow: Flow<ApiToken> = combine(apiTokenName, apiTokenValue) { name, value ->
-        ApiToken(name = name, value = value)
-    }
+            is InputApiTokenIntent.TokenChanged -> {
+                val currentState = (_uiState.value as? InputApiTokenState.Input) ?: return
+                _uiState.value = currentState.copy(
+                    token = intent.newValue, errors = currentState.errors - "token"
+                )
+            }
 
-    fun saveApiTokenToDatabase() {
-        viewModelScope.launch(Dispatchers.IO) {
-            apiTokenFlow.collectLatest { data -> saveApiTokenToDatabaseUsecase.saveApiToken(data) }
+            is InputApiTokenIntent.SaveApiToken -> {
+                saveApiToken()
+            }
+
+            is InputApiTokenIntent.MessageShown -> {
+                val currentState = (_uiState.value as? InputApiTokenState.Input) ?: return
+                _uiState.value = currentState.copy(toastMessage = null)
+            }
         }
     }
 
-    fun onNameChanged(newValue: String) {
-        _apiTokenName.value = newValue
-    }
+    fun saveApiToken() {
 
-    fun onValueChanged(newValue: String) {
-        _apiTokenValue.value = newValue
-    }
+        val currentState = (_uiState.value as? InputApiTokenState.Input) ?: return
+        val name = currentState.name
+        val token = currentState.token
 
-    fun checkAndSaveApiToken(
-        onSuccess: (String) -> Unit,
-        onError: (String) -> Unit
-    ) {
+        if (name.isBlank() || token.isBlank()) {
+            val errors = mutableMapOf<String, String>()
+            if (name.isBlank()) errors["name"] = "Имя не может быть пустым"
+            if (token.isBlank()) errors["token"] = "Токен не может быть пустым"
+            _uiState.value = currentState.copy(errors = errors)
+            return
+        }
+
         viewModelScope.launch {
-            val apiTokenName = _apiTokenName.value
-            val apiTokenValue = _apiTokenValue.value
-
-            if (apiTokenName.isBlank() || apiTokenValue.isBlank()) {
-                onError("Наименование сервера или api-токен не могут быть пустыми")
-                return@launch
-            }
-
             try {
-                when (val result = checkApiTokenUsecase.checkApiToken(apiTokenValue)) {
+                when (val result = checkApiTokenUsecase.checkApiToken(token)) {
                     is ApiResult.SuccessServer -> {
                         try {
                             saveApiTokenToDatabaseUsecase.saveApiToken(
                                 ApiToken(
-                                    name = apiTokenName,
-                                    value = apiTokenValue
+                                    name = name, value = token
                                 )
                             )
-                            onSuccess("Сервер успешно добавлен")
+                            _uiState.value = InputApiTokenState.Success("Сервер успешно добавлен")
                         } catch (e: SQLiteConstraintException) {
+                            val errors = mutableMapOf<String, String>()
                             if (e.message?.contains("name") == true) {
-                                onError("Наименование сервера уже существует")
-                            } else if (e.message?.contains("value") == true) {
-                                onError("Api-токен уже существует")
+                                errors["name"] = "Наименование сервера уже существует"
                             }
+                            if (e.message?.contains("value") == true) {
+                                errors["token"] = "Api-токен уже существует"
+                            }
+                            _uiState.value = currentState.copy(errors = errors)
                         }
-
                     }
 
                     is ApiResult.SuccessApiResponse -> {
-                        onError("Токен не найден")
+                        _uiState.value =
+                            currentState.copy(errors = mapOf("token" to "Api-токен не найден"))
                     }
 
                     is ApiResult.Error -> {
-                        onError(result.error)
+                        _uiState.value = InputApiTokenState.Error(mapOf("general" to result.error))
                     }
                 }
             } catch (e: Exception) {
-                onError("Unexpected error: ${e.message}")
+                _uiState.value = InputApiTokenState.Error(
+                    mapOf(
+                        "general" to "непредвиденная ошибка"
+                    )
+                )
             }
+
         }
     }
 }
