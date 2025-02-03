@@ -7,66 +7,67 @@ import com.example.manageproxies.app.presentation.models.ApiToken
 import com.example.manageproxies.app.presentation.models.InputApiTokenIntent
 import com.example.manageproxies.app.presentation.models.InputApiTokenState
 import com.example.manageproxies.app.presentation.usecase.CheckApiTokenUsecase
+import com.example.manageproxies.app.presentation.usecase.GetAllApiTokensFromDatabaseUsecase
 import com.example.manageproxies.app.presentation.usecase.SaveApiTokenToDatabaseUsecase
 import com.example.manageproxies.data.remote.ApiResult
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
 class InputApiTokenScreenViewModel @Inject constructor(
     private val saveApiTokenToDatabaseUsecase: SaveApiTokenToDatabaseUsecase,
-    private val checkApiTokenUsecase: CheckApiTokenUsecase
+    private val checkApiTokenUsecase: CheckApiTokenUsecase,
+    private val getAllApiTokensFromDatabaseUsecase: GetAllApiTokensFromDatabaseUsecase
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow<InputApiTokenState>(InputApiTokenState.Input())
+    private val _uiState = MutableStateFlow<InputApiTokenState>(InputApiTokenState())
     val uiState: StateFlow<InputApiTokenState> = _uiState.asStateFlow()
 
+    init {
+        loadAllApiTokensFromDatabase()
+    }
 
     fun handleIntent(intent: InputApiTokenIntent) {
         when (intent) {
             is InputApiTokenIntent.NameChanged -> {
-                val currentState = (_uiState.value as? InputApiTokenState.Input) ?: return
-                _uiState.value =
-                    currentState.copy(name = intent.newValue, errors = currentState.errors - "name")
+                val currentState = _uiState.value
+                _uiState.value = currentState.copy(nameTextField = intent.newValue ?: "")
             }
 
             is InputApiTokenIntent.TokenChanged -> {
-                val currentState = (_uiState.value as? InputApiTokenState.Input) ?: return
-                _uiState.value = currentState.copy(
-                    token = intent.newValue, errors = currentState.errors - "token"
-                )
+                val currentState = _uiState.value
+                _uiState.value = currentState.copy(tokenTextField = intent.newValue ?: "")
             }
 
             is InputApiTokenIntent.SaveApiToken -> {
                 saveApiToken()
-            }
-
-            is InputApiTokenIntent.MessageShown -> {
-                val currentState = (_uiState.value as? InputApiTokenState.Input) ?: return
-                _uiState.value = currentState.copy(toastMessage = null)
             }
         }
     }
 
     fun saveApiToken() {
 
-        val currentState = (_uiState.value as? InputApiTokenState.Input) ?: return
-        val name = currentState.name
-        val token = currentState.token
+        val currentState = _uiState.value
+        val name = currentState.nameTextField.trim()
+        val token = currentState.tokenTextField.trim()
 
-        if (name.isBlank() || token.isBlank()) {
-            val errors = mutableMapOf<String, String>()
-            if (name.isBlank()) errors["name"] = "Имя не может быть пустым"
-            if (token.isBlank()) errors["token"] = "Токен не может быть пустым"
-            _uiState.value = currentState.copy(errors = errors)
+        val nameError = name.isBlank()
+        val tokenError = token.isBlank()
+
+        if (nameError || tokenError) {
+            _uiState.value = currentState.copy(
+                errors = mapOf("fieldIsBlank" to "Наименование сервера или Api-токен не могут быть пустыми")
+            )
             return
         }
 
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
                 when (val result = checkApiTokenUsecase.checkApiToken(token)) {
                     is ApiResult.SuccessServer -> {
@@ -76,36 +77,81 @@ class InputApiTokenScreenViewModel @Inject constructor(
                                     name = name, value = token
                                 )
                             )
-                            _uiState.value = InputApiTokenState.Success("Сервер успешно добавлен")
+                            val apiTokens = getAllApiTokensFromDatabaseUsecase.getAllApiTokens()
+                            withContext(Dispatchers.Main) {
+                                _uiState.value = currentState.copy(
+                                    nameTextField = "",
+                                    tokenTextField = "",
+                                    isServerAdded = true,
+                                    apiTokensList = apiTokens
+                                )
+                            }
                         } catch (e: SQLiteConstraintException) {
-                            val errors = mutableMapOf<String, String>()
-                            if (e.message?.contains("name") == true) {
-                                errors["name"] = "Наименование сервера уже существует"
+                            val errors = mutableMapOf<String, String>().apply {
+                                if (e.message?.contains("name") == true) {
+                                    this["name"] = "Наименование сервера уже существует"
+                                }
+                                if (e.message?.contains("value") == true) {
+                                    this["token"] = "Api-токен уже существует"
+                                }
                             }
-                            if (e.message?.contains("value") == true) {
-                                errors["token"] = "Api-токен уже существует"
+                            withContext(Dispatchers.Main) {
+                                _uiState.value = currentState.copy(
+                                    errors = errors
+                                )
                             }
-                            _uiState.value = currentState.copy(errors = errors)
+
                         }
                     }
 
                     is ApiResult.SuccessApiResponse -> {
-                        _uiState.value =
-                            currentState.copy(errors = mapOf("token" to "Api-токен не найден"))
+                        withContext(Dispatchers.Main) {
+                            _uiState.value =
+                                currentState.copy(errors = mapOf("token" to "Api-токен не найден"))
+                        }
+
                     }
 
                     is ApiResult.Error -> {
-                        _uiState.value = InputApiTokenState.Error(mapOf("general" to result.error))
+                        _uiState.value = currentState.copy(
+                            errors = mapOf("requestError" to result.error)
+                        )
                     }
                 }
             } catch (e: Exception) {
-                _uiState.value = InputApiTokenState.Error(
-                    mapOf(
-                        "general" to "непредвиденная ошибка"
+                withContext(Dispatchers.Main) {
+                    _uiState.value = currentState.copy(
+                        errors = mapOf(
+                            "requestError" to "непредвиденная ошибка: ${e.localizedMessage}"
+                        )
                     )
-                )
+                }
+
             }
 
         }
+    }
+
+    fun resetServerAddedFlag() {
+        _uiState.value = _uiState.value.copy(isServerAdded = false)
+    }
+
+    private fun loadAllApiTokensFromDatabase() {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val apiTokens = getAllApiTokensFromDatabaseUsecase.getAllApiTokens()
+                _uiState.value = uiState.value.copy(
+                    apiTokensList = apiTokens
+                )
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    _uiState.value = _uiState.value.copy(
+                        errors = mapOf("requestError" to "Не удалось загрузить данные Api-токенов")
+                    )
+                }
+
+            }
+        }
+
     }
 }

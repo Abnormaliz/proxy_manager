@@ -31,4 +31,5 @@ interface ServerDao {
 
     @Query("SELECT * FROM apiTokens_list WHERE name = :apiTokenName LIMIT 1")
     suspend fun getApiTokenByName(apiTokenName: String): ApiToken
+
 }
