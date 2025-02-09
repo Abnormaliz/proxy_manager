@@ -2,7 +2,7 @@ package com.example.manageproxies.app.di
 
 import android.content.Context
 import androidx.room.Room
-import com.example.manageproxies.app.presentation.models.DemoWorker
+import androidx.work.WorkManager
 import com.example.manageproxies.app.repository.TokenRepository
 import com.example.manageproxies.data.database.ServerDatabase
 import com.example.manageproxies.data.remote.MyApi
@@ -59,9 +59,11 @@ class DataModule {
         app, ServerDatabase::class.java, "server_db"
     ).build()
 
-    @Singleton
     @Provides
-    fun provideDemoWorker(): DemoWorker {
-        return DemoWorker()
+    @Singleton
+    fun provideWorkManager(
+        @ApplicationContext appContext: Context
+    ) : WorkManager {
+        return WorkManager.getInstance(appContext)
     }
 }

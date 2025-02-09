@@ -30,10 +30,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.manageproxies.R
 import com.example.manageproxies.app.presentation.navigation.Screen
-import com.example.manageproxies.app.presentation.screens.InputKeyScreen
+import com.example.manageproxies.app.presentation.screens.InputApiTokenScreen
 import com.example.manageproxies.app.presentation.screens.ModemsInfoScreen
 import com.example.manageproxies.app.presentation.screens.ServerInfoScreen
 import com.example.manageproxies.app.presentation.ui.theme.AppTheme
+import com.example.manageproxies.app.presentation.vm.InputApiTokenScreenViewModel
 import com.example.manageproxies.app.presentation.vm.SharedViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -59,6 +60,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun BottomNavigationBar() {
     val sharedViewModel = hiltViewModel<SharedViewModel>()
+    val inputApiTokenScreenViewModel = hiltViewModel<InputApiTokenScreenViewModel>()
     val navController = rememberNavController()
     var selectedItemIndex by remember {
         mutableIntStateOf(0)
@@ -78,7 +80,7 @@ fun BottomNavigationBar() {
         ),
         Screen(
             "Add",
-            "AddServerScreen",
+            "InputApiTokenScreen",
             selectedIcon = Icons.Filled.AddCircle,
             unselectedIcon = Icons.Default.AddCircle
         )
@@ -118,8 +120,8 @@ fun BottomNavigationBar() {
             startDestination = "ListOfServersScreen",
             modifier = Modifier.padding(paddingValues)
         ) {
-            composable("AddServerScreen") {
-                InputKeyScreen(sharedViewModel)
+            composable("InputApiTokenScreen") {
+                InputApiTokenScreen(inputApiTokenScreenViewModel)
             }
             composable("ListOfServersScreen") {
                 ServerInfoScreen(sharedViewModel)

@@ -20,5 +20,5 @@ fun Server.toServerUi() = ServerUi(
 )
 
 fun String.extractDigitsOnly(): String {
-    return this.filter { it.isDigit() || it.isWhitespace() }
+    return this.filter { it.isDigit() }
 }

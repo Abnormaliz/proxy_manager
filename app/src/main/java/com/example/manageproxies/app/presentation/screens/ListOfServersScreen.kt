@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,22 +36,18 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.manageproxies.R
-import com.example.manageproxies.app.presentation.models.ServerUi
+import com.example.manageproxies.app.presentation.models.ServerInfoUi
 import com.example.manageproxies.app.presentation.vm.SharedViewModel
 
 
 @Composable
 fun ServerInfoScreen(viewModel: SharedViewModel) {
     val server by viewModel.serverInfo.observeAsState()
-    val orders by viewModel.orders.observeAsState()
-    val selfOrders by viewModel.selfOrders.observeAsState()
-    val allOrders by viewModel.allOrders.observeAsState()
-    val testOrders by viewModel.testOrders.observeAsState()
 
 
     Box(modifier = Modifier.fillMaxWidth()) {
         Column {
-            ShowServers(server, orders, selfOrders, allOrders, testOrders)
+            ShowServers(server)
         }
     }
 
@@ -58,33 +55,28 @@ fun ServerInfoScreen(viewModel: SharedViewModel) {
 
 @Composable
 fun ShowServers(
-    serverInfo: List<ServerUi>?,
-    orders: Int?,
-    selfOrders: Int?,
-    allOrders: Int?,
-    testOrders: Int?
+    serverInfo: List<ServerInfoUi>?
 ) {
     LazyColumn(
         modifier = Modifier.wrapContentSize(),
         contentPadding = PaddingValues(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        serverInfo?.let {
-            items(it.size) { index ->
+        serverInfo?.let { servers ->
+            items(servers) { server ->
                 ServerRow(
-                    server = it[index],
-                    orders = orders,
-                    selfOrders = selfOrders,
-                    allOrders = allOrders,
-                    testOrders = testOrders
+                    server = server
                 )
             }
+
         }
     }
 }
 
 @Composable
-fun ServerRow(server: ServerUi, orders: Int?, selfOrders: Int?, allOrders: Int?, testOrders: Int?) {
+fun ServerRow(
+    server: ServerInfoUi
+) {
     var isExpanded by remember { mutableStateOf(false) }
     Row(
         modifier = Modifier
@@ -97,47 +89,53 @@ fun ServerRow(server: ServerUi, orders: Int?, selfOrders: Int?, allOrders: Int?,
     ) {
         Column {
             Text(text = buildAnnotatedString {
-                append(stringResource(R.string.server_row_id, ""))
+                append(stringResource(R.string.server_id, ""))
                 withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                    append(server.id.toString())
+                    append(server.id)
                 }
             })
             Text(text = buildAnnotatedString {
-                append(stringResource(R.string.server_row_geo, ""))
+                append(stringResource(R.string.server_geo, ""))
                 withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
                     append(server.geo)
                 }
             })
             Text(text = buildAnnotatedString {
-                append(stringResource(R.string.server_row_income, ""))
+                append(stringResource(R.string.server_income, ""))
                 withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                    append(server.approximateIncome)
+                    append(server.totalIncome.toString())
                 }
             })
             Text(text = buildAnnotatedString {
-                append(stringResource(R.string.server_row_all_orders, ""))
+                append(stringResource(R.string.server_modems_total, ""))
                 withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                    append(allOrders.toString())
+                    append(server.allModems.toString())
+                }
+            })
+            Text(text = buildAnnotatedString {
+                append(stringResource(R.string.server_orders_total, ""))
+                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                    append(server.allOrders.toString())
                 }
             }, modifier = Modifier.clickable { isExpanded = !isExpanded })
             AnimatedVisibility(visible = isExpanded) {
                 Column {
                     Text(text = buildAnnotatedString {
-                        append(stringResource(R.string.server_row_clients, ""))
+                        append(stringResource(R.string.server_orders_clients, ""))
                         withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                            append(orders.toString())
+                            append(server.siteOrders.toString())
                         }
                     })
                     Text(text = buildAnnotatedString {
-                        append(stringResource(R.string.server_row_self_orders, ""))
+                        append(stringResource(R.string.server_orders_self, ""))
                         withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                            append(selfOrders.toString())
+                            append(server.selfOrders.toString())
                         }
                     })
                     Text(text = buildAnnotatedString {
-                        append(stringResource(R.string.server_row_test_orders, ""))
+                        append(stringResource(R.string.server_orders_test, ""))
                         withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                            append(testOrders.toString())
+                            append(server.testOrders.toString())
                         }
                     })
                 }

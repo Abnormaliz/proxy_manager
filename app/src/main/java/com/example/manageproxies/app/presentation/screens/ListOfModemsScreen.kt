@@ -42,7 +42,7 @@ fun ModemsInfoScreen(viewModel: SharedViewModel) {
         }
         Button(
             onClick = {
-                viewModel.setModemStatusNew()
+//                viewModel.setModemStatusNew()
             },
             modifier = Modifier
                 .padding(16.dp)
@@ -87,7 +87,7 @@ fun ModemRow(modem: ModemUi) {
             .border(1.dp, Color.Black, RoundedCornerShape(8.dp))
             .background(color = colorResource(R.color.block))
             .then(
-                if (modem.order == "Ordered") {
+                if (modem.isOrdered) {
                     Modifier.background(color = colorResource(R.color.ordered))
                 } else Modifier
             )

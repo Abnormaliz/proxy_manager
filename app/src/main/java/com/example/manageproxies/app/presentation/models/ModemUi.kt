@@ -8,9 +8,10 @@ data class ModemUi(
     val eid: Int,
     val name: String,
     val operator: String,
-    val order: String?,
-    val selfOrder: Boolean?,
-    val testOrder: Boolean?
+    val isOrdered: Boolean = false,
+    val isOnSiteOrdered: Boolean = false,
+    val isSelfOrdered: Boolean = false,
+    val isTestOrdered: Boolean = false
 )
 
 fun Modem.toModemUi() = ModemUi(
@@ -18,7 +19,8 @@ fun Modem.toModemUi() = ModemUi(
     eid = eid.toInt(),
     name = name,
     operator = operator,
-    order = if (proxy_exp != null && proxy_self != "1") "Ordered" else null,
-    selfOrder = proxy_self == "1",
-    testOrder = proxy_testing == "1"
+    isOrdered = proxy_exp != null,
+    isOnSiteOrdered = proxy_exp != null && proxy_self == "0",
+    isSelfOrdered = proxy_self == "1",
+    isTestOrdered = proxy_testing == "1"
 )
