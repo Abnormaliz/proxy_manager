@@ -5,8 +5,6 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.manageproxies.app.presentation.models.ApiToken
-import com.example.manageproxies.app.presentation.models.InputApiTokenIntent
-import com.example.manageproxies.app.presentation.models.InputApiTokenState
 import com.example.manageproxies.app.presentation.usecase.CheckApiTokenUsecase
 import com.example.manageproxies.app.presentation.usecase.GetAllApiTokensFromDatabaseUsecase
 import com.example.manageproxies.app.presentation.usecase.RemoveApiTokenFromDatabaseUsecase
@@ -29,30 +27,30 @@ class InputApiTokenScreenViewModel @Inject constructor(
     private val removeApiTokenFromDatabaseUsecase: RemoveApiTokenFromDatabaseUsecase
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow<InputApiTokenState>(InputApiTokenState())
-    val uiState: StateFlow<InputApiTokenState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow<InputApiTokenScreenState>(InputApiTokenScreenState())
+    val uiState: StateFlow<InputApiTokenScreenState> = _uiState.asStateFlow()
 
     init {
         loadAllApiTokensFromDatabase()
     }
 
-    fun handleIntent(intent: InputApiTokenIntent) {
+    fun handleIntent(intent: InputApiTokenScreenIntent) {
         when (intent) {
-            is InputApiTokenIntent.NameChanged -> {
+            is InputApiTokenScreenIntent.NameChanged -> {
                 val currentState = _uiState.value
                 _uiState.value = currentState.copy(nameTextField = intent.newValue ?: "")
             }
 
-            is InputApiTokenIntent.TokenChanged -> {
+            is InputApiTokenScreenIntent.TokenScreenChanged -> {
                 val currentState = _uiState.value
                 _uiState.value = currentState.copy(tokenTextField = intent.newValue ?: "")
             }
 
-            is InputApiTokenIntent.SaveApiToken -> {
+            is InputApiTokenScreenIntent.SaveApiTokenScreen -> {
                 saveApiToken()
             }
 
-            is InputApiTokenIntent.RemoveApiToken -> {
+            is InputApiTokenScreenIntent.RemoveApiTokenScreen -> {
                 removeApiTokenFromDatabase(intent.apiToken)
             }
         }

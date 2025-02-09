@@ -35,6 +35,7 @@ import com.example.manageproxies.app.presentation.screens.ModemsInfoScreen
 import com.example.manageproxies.app.presentation.screens.ServerInfoScreen
 import com.example.manageproxies.app.presentation.ui.theme.AppTheme
 import com.example.manageproxies.app.presentation.vm.InputApiTokenScreenViewModel
+import com.example.manageproxies.app.presentation.vm.ServersScreenViewModel
 import com.example.manageproxies.app.presentation.vm.SharedViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -60,6 +61,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun BottomNavigationBar() {
     val sharedViewModel = hiltViewModel<SharedViewModel>()
+    val serversScreenViewModel = hiltViewModel<ServersScreenViewModel>()
     val inputApiTokenScreenViewModel = hiltViewModel<InputApiTokenScreenViewModel>()
     val navController = rememberNavController()
     var selectedItemIndex by remember {
@@ -68,7 +70,7 @@ fun BottomNavigationBar() {
     val screens = listOf(
         Screen(
             "Servers",
-            "ListOfServersScreen",
+            "ServersScreen",
             selectedIcon = Icons.Filled.AccountCircle,
             unselectedIcon = Icons.Default.AccountCircle
         ),
@@ -117,14 +119,14 @@ fun BottomNavigationBar() {
     ) { paddingValues ->
         NavHost(
             navController = navController,
-            startDestination = "ListOfServersScreen",
+            startDestination = "ServersScreen",
             modifier = Modifier.padding(paddingValues)
         ) {
             composable("InputApiTokenScreen") {
                 InputApiTokenScreen(inputApiTokenScreenViewModel)
             }
-            composable("ListOfServersScreen") {
-                ServerInfoScreen(sharedViewModel)
+            composable("ServersScreen") {
+                ServerInfoScreen(serversScreenViewModel)
             }
             composable("ListOfModemsScreen") {
                 ModemsInfoScreen(sharedViewModel)

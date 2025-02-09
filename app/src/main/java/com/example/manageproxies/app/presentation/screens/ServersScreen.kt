@@ -1,5 +1,6 @@
 package com.example.manageproxies.app.presentation.screens
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -10,14 +11,17 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -37,19 +41,37 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.manageproxies.R
 import com.example.manageproxies.app.presentation.models.ServerInfoUi
+import com.example.manageproxies.app.presentation.vm.ServersScreenViewModel
 import com.example.manageproxies.app.presentation.vm.SharedViewModel
 
 
 @Composable
-fun ServerInfoScreen(viewModel: SharedViewModel) {
-    val server by viewModel.serverInfo.observeAsState()
+fun ServerInfoScreen(viewModel: ServersScreenViewModel) {
+    val uiState by viewModel.uiState.collectAsState()
 
 
-    Box(modifier = Modifier.fillMaxWidth()) {
-        Column {
-            ShowServers(server)
+    Column(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Box(modifier = Modifier.fillMaxWidth()) {
+            Column {
+                ShowServers(uiState.serverList)
+            }
+        }
+        Button(
+            onClick = { viewModel.getServerApi()
+                      Log.d("ServersScreen", "$uiState")},
+        ) {
+            Text("refresh server")
+        }
+        Button(
+            onClick = { viewModel.loadAllApiTokensFromDatabase()
+                Log.d("ServersScreen", "$uiState")},
+        ) {
+            Text("refresh token")
         }
     }
+
 
 }
 
@@ -83,7 +105,6 @@ fun ServerRow(
             .fillMaxWidth()
             .clip(RoundedCornerShape(8.dp))
             .border(1.dp, Color.Black, RoundedCornerShape(8.dp))
-            .background(color = colorResource(R.color.block))
             .padding(8.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
@@ -145,26 +166,4 @@ fun ServerRow(
     }
 }
 
-
-@Preview(showBackground = true)
-@Composable
-fun ModemRowPreview() {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(8.dp))
-            .border(1.dp, Color.Black, RoundedCornerShape(8.dp))
-            .padding(8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Image(painterResource(R.drawable.status_off), contentDescription = "statusOn")
-            Text(text = "123123")
-            Text(text = "1")
-            Text(text = "Viettel")
-        }
-    }
-}
 
