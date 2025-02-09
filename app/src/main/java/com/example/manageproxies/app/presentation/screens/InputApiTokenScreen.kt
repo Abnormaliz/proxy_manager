@@ -24,7 +24,6 @@ import androidx.compose.material.DismissDirection
 import androidx.compose.material.DismissState
 import androidx.compose.material.DismissValue
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.FractionalThreshold
 import androidx.compose.material.SwipeToDismiss
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
@@ -123,7 +122,7 @@ fun InputApiTokenScreen(viewModel: InputApiTokenScreenViewModel) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        ShowApiTokens(uiState.apiTokensList)
+        ShowApiTokens(uiState.apiTokensList) { intent -> viewModel.handleIntent(intent) }
     }
 }
 
@@ -148,18 +147,18 @@ fun InputField(value: String, onValueChange: (String) -> Unit, label: String, er
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun ShowApiTokens(tokens: List<ApiToken>) {
+fun ShowApiTokens(tokens: List<ApiToken>, intent: (InputApiTokenIntent) -> Unit) {
     val context = LocalContext.current
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .padding(top = 16.dp)
     ) {
-        items(tokens) { token ->
+        items(tokens, key = { it.id }) { token ->
             SwipeToDeleteContainer(
                 item = token,
+                onDelete = { intent(InputApiTokenIntent.RemoveApiToken(token)) }
             ) {
                 Card(
                     modifier = Modifier
@@ -194,24 +193,30 @@ fun ShowApiTokens(tokens: List<ApiToken>) {
 
 
 @Composable
-fun <T> SwipeToDeleteContainer(
-    item: T, animationDuration: Int = 500, content: @Composable (T) -> Unit
+fun SwipeToDeleteContainer(
+    item: ApiToken,
+    onDelete: () -> Unit,
+    animationDuration: Int = 500,
+    content: @Composable (ApiToken) -> Unit
 ) {
     var isRemoved by remember {
         mutableStateOf(false)
     }
+
     val state = rememberDismissState(
         confirmStateChange = { value ->
-        if (value == DismissValue.DismissedToStart) {
-            false
-        } else {
-            true
-        }
-    })
+            if (value == DismissValue.DismissedToStart) {
+                isRemoved = true
+                true
+            } else {
+                false
+            }
+        })
 
     LaunchedEffect(key1 = isRemoved) {
         if (isRemoved) {
             delay(animationDuration.toLong())
+            onDelete()
         }
     }
 
@@ -222,7 +227,7 @@ fun <T> SwipeToDeleteContainer(
     ) {
         SwipeToDismiss(
             state = state,
-            background = {DeleteBackground(swipeDismissState = state) },
+            background = { DeleteBackground(swipeDismissState = state) },
             dismissContent = { content(item) },
             directions = setOf(DismissDirection.EndToStart),
         )
@@ -252,4 +257,3 @@ fun DeleteBackground(
         )
     }
 }
-

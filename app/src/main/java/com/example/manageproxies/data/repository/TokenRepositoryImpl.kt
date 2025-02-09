@@ -69,5 +69,9 @@ class TokenRepositoryImpl @Inject constructor(
         return db.serverDao().getApiTokenByName(apiTokenName)
     }
 
+    override suspend fun removeApiTokenByName(apiToken: ApiToken) {
+        return db.serverDao().deleteTokenByName(apiToken)
+    }
+
 
 }

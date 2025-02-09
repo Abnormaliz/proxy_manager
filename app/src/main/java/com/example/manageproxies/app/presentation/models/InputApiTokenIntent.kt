@@ -4,4 +4,5 @@ sealed class InputApiTokenIntent {
     data class NameChanged(val newValue: String?) : InputApiTokenIntent()
     data class TokenChanged(val newValue: String?) : InputApiTokenIntent()
     object SaveApiToken : InputApiTokenIntent()
+    data class RemoveApiToken(val apiToken: ApiToken): InputApiTokenIntent()
 }

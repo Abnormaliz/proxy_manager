@@ -1,6 +1,7 @@
 package com.example.manageproxies.app.presentation.vm
 
 import android.database.sqlite.SQLiteConstraintException
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.manageproxies.app.presentation.models.ApiToken
@@ -8,6 +9,7 @@ import com.example.manageproxies.app.presentation.models.InputApiTokenIntent
 import com.example.manageproxies.app.presentation.models.InputApiTokenState
 import com.example.manageproxies.app.presentation.usecase.CheckApiTokenUsecase
 import com.example.manageproxies.app.presentation.usecase.GetAllApiTokensFromDatabaseUsecase
+import com.example.manageproxies.app.presentation.usecase.RemoveApiTokenFromDatabaseUsecase
 import com.example.manageproxies.app.presentation.usecase.SaveApiTokenToDatabaseUsecase
 import com.example.manageproxies.data.remote.ApiResult
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,7 +25,8 @@ import javax.inject.Inject
 class InputApiTokenScreenViewModel @Inject constructor(
     private val saveApiTokenToDatabaseUsecase: SaveApiTokenToDatabaseUsecase,
     private val checkApiTokenUsecase: CheckApiTokenUsecase,
-    private val getAllApiTokensFromDatabaseUsecase: GetAllApiTokensFromDatabaseUsecase
+    private val getAllApiTokensFromDatabaseUsecase: GetAllApiTokensFromDatabaseUsecase,
+    private val removeApiTokenFromDatabaseUsecase: RemoveApiTokenFromDatabaseUsecase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<InputApiTokenState>(InputApiTokenState())
@@ -47,6 +50,10 @@ class InputApiTokenScreenViewModel @Inject constructor(
 
             is InputApiTokenIntent.SaveApiToken -> {
                 saveApiToken()
+            }
+
+            is InputApiTokenIntent.RemoveApiToken -> {
+                removeApiTokenFromDatabase(intent.apiToken)
             }
         }
     }
@@ -150,6 +157,18 @@ class InputApiTokenScreenViewModel @Inject constructor(
                     )
                 }
 
+            }
+        }
+
+    }
+
+    private fun removeApiTokenFromDatabase(apiToken: ApiToken) {
+        viewModelScope.launch(Dispatchers.IO) {
+            removeApiTokenFromDatabaseUsecase.removeApiTokenFromDatabase(apiToken)
+            val updatedList = getAllApiTokensFromDatabaseUsecase.getAllApiTokens()
+            withContext(Dispatchers.Main) {
+                _uiState.value = _uiState.value.copy(apiTokensList = updatedList)
+                Log.d("123", "${_uiState.value.apiTokensList}")
             }
         }
 

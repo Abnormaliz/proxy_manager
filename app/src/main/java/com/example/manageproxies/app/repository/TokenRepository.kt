@@ -33,4 +33,6 @@ interface TokenRepository {
     suspend fun getAllApiTokensFromDatabase(): List<ApiToken>
 
     suspend fun getApiTokenByName(apiTokenName: String): ApiToken
+
+    suspend fun removeApiTokenByName(apiToken: ApiToken)
 }

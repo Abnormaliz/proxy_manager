@@ -1,6 +1,7 @@
 package com.example.manageproxies.data.database
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -32,4 +33,6 @@ interface ServerDao {
     @Query("SELECT * FROM apiTokens_list WHERE name = :apiTokenName LIMIT 1")
     suspend fun getApiTokenByName(apiTokenName: String): ApiToken
 
+    @Delete
+    suspend fun deleteTokenByName(apiToken: ApiToken)
 }
