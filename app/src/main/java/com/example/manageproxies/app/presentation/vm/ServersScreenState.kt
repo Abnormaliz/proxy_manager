@@ -6,5 +6,6 @@ import com.example.manageproxies.app.presentation.models.ServerInfoUi
 data class ServersScreenState(
     val serverList: List<ServerInfoUi> = emptyList(),
     val apiTokenList: List<ApiToken> = emptyList(),
-    val errors: Map<String, String> = emptyMap()
+    val errors: Map<String, String> = emptyMap(),
+    val isLoading: Boolean = false
 )

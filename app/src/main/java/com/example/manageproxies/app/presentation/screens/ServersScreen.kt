@@ -2,8 +2,6 @@ package com.example.manageproxies.app.presentation.screens
 
 import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -23,52 +21,48 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.manageproxies.R
 import com.example.manageproxies.app.presentation.models.ServerInfoUi
+import com.example.manageproxies.app.presentation.vm.ServersScreenIntent
 import com.example.manageproxies.app.presentation.vm.ServersScreenViewModel
-import com.example.manageproxies.app.presentation.vm.SharedViewModel
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import kotlinx.coroutines.launch
 
 
 @Composable
 fun ServerInfoScreen(viewModel: ServersScreenViewModel) {
     val uiState by viewModel.uiState.collectAsState()
-
+    val coroutineScope = rememberCoroutineScope()
+    val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = uiState.isLoading)
 
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
         Box(modifier = Modifier.fillMaxWidth()) {
             Column {
-                ShowServers(uiState.serverList)
+                SwipeRefresh(
+                    state = swipeRefreshState,
+                    onRefresh = { coroutineScope.launch { viewModel.handleIntent(ServersScreenIntent.UpdateServersScreen) } },
+                    modifier = Modifier.fillMaxSize())
+                {
+                    ShowServers(uiState.serverList)
+                }
+
             }
-        }
-        Button(
-            onClick = { viewModel.getServerApi()
-                      Log.d("ServersScreen", "$uiState")},
-        ) {
-            Text("refresh server")
-        }
-        Button(
-            onClick = { viewModel.loadAllApiTokensFromDatabase()
-                Log.d("ServersScreen", "$uiState")},
-        ) {
-            Text("refresh token")
         }
     }
 

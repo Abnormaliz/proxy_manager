@@ -7,9 +7,11 @@ import com.example.manageproxies.app.presentation.usecase.GetAllApiTokensFromDat
 import com.example.manageproxies.app.presentation.usecase.SetServerInfoUsecase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -25,45 +27,66 @@ class ServersScreenViewModel @Inject constructor(
 
 
     init {
-        loadAllApiTokensFromDatabase()
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true) }
+            delay(3000L)
+            loadAllApiTokensFromDatabase()
+            getServerApi()
+            _uiState.update { it.copy(isLoading = false) }
+        }
+
     }
 
-     fun getServerApi() {
-        viewModelScope.launch(Dispatchers.IO) {
-            val currentState = _uiState.value
-            try {
-                val serverInfo = setServerInfoUsecase.getServerInfo(currentState.apiTokenList)
-                Log.d("ServersScreen", "$serverInfo")
-                _uiState.value = currentState.copy(
+    fun handleIntent(intent: ServersScreenIntent) {
+        when (intent) {
+            is ServersScreenIntent.UpdateServersScreen -> {
+                viewModelScope.launch {
+                    _uiState.update { it.copy(isLoading = true) }
+                    delay(3000L)
+                    loadAllApiTokensFromDatabase()
+                    getServerApi()
+                    _uiState.update { it.copy(isLoading = false) }
+                }
+            }
+        }
+    }
+
+    suspend fun getServerApi() {
+        try {
+            val serverInfo = withContext(Dispatchers.IO) {
+                setServerInfoUsecase.getServerInfo(_uiState.value.apiTokenList)
+            }
+            Log.d("ServersScreen", "$serverInfo")
+            _uiState.update {
+                it.copy(
                     serverList = serverInfo
                 )
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    Log.d("ServersScreen", "${e.message}")
-                    _uiState.value = _uiState.value.copy(
-                        errors = mapOf("requestError" to "Не удалось загрузить данные сервера")
-                    )
-                }
+            }
+        } catch (e: Exception) {
+            Log.d("ServersScreen", "${e.message}")
+            _uiState.update {
+                it.copy(
+                    errors = mapOf("requestError" to "Не удалось загрузить данные сервера")
+                )
             }
         }
+
+
     }
 
 
-    fun loadAllApiTokensFromDatabase() {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val apiTokens = getAllApiTokenFromDatabaseUsecase.getAllApiTokens()
-                _uiState.value = uiState.value.copy(
-                    apiTokenList = apiTokens
-                )
-                Log.d("ServersScreen", "${_uiState.value.apiTokenList}")
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    _uiState.value = _uiState.value.copy(
-                        errors = mapOf("requestError" to "Не удалось загрузить данные Api-токенов")
-                    )
-                }
+    suspend fun loadAllApiTokensFromDatabase() {
+        try {
+            val apiTokens = withContext(Dispatchers.IO) {
+                getAllApiTokenFromDatabaseUsecase.getAllApiTokens()
             }
+            _uiState.update { it.copy(apiTokenList = apiTokens) }
+            Log.d("ServersScreen", "${_uiState.value.apiTokenList}")
+        } catch (e: Exception) {
+            _uiState.update { it.copy(errors = mapOf("requestError" to "Не удалось загрузить данные Api-токенов")) }
+
         }
+
+
     }
 }
