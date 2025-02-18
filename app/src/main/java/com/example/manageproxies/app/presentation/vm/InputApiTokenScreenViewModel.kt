@@ -15,6 +15,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -37,13 +38,11 @@ class InputApiTokenScreenViewModel @Inject constructor(
     fun handleIntent(intent: InputApiTokenScreenIntent) {
         when (intent) {
             is InputApiTokenScreenIntent.NameChanged -> {
-                val currentState = _uiState.value
-                _uiState.value = currentState.copy(nameTextField = intent.newValue ?: "")
+                _uiState.update { it.copy(nameTextField = intent.newValue ?: "") }
             }
 
             is InputApiTokenScreenIntent.TokenScreenChanged -> {
-                val currentState = _uiState.value
-                _uiState.value = currentState.copy(tokenTextField = intent.newValue ?: "")
+                _uiState.update { it.copy(tokenTextField = intent.newValue ?: "") }
             }
 
             is InputApiTokenScreenIntent.SaveApiTokenScreen -> {
@@ -66,9 +65,11 @@ class InputApiTokenScreenViewModel @Inject constructor(
         val tokenError = token.isBlank()
 
         if (nameError || tokenError) {
-            _uiState.value = currentState.copy(
-                errors = mapOf("fieldIsBlank" to "Наименование сервера или Api-токен не могут быть пустыми")
-            )
+            _uiState.update {
+                it.copy(
+                    errors = mapOf("fieldIsBlank" to "Наименование сервера или Api-токен не могут быть пустыми")
+                )
+            }
             return
         }
 
@@ -84,12 +85,14 @@ class InputApiTokenScreenViewModel @Inject constructor(
                             )
                             val apiTokens = getAllApiTokensFromDatabaseUsecase.getAllApiTokens()
                             withContext(Dispatchers.Main) {
-                                _uiState.value = currentState.copy(
-                                    nameTextField = "",
-                                    tokenTextField = "",
-                                    isServerAdded = true,
-                                    apiTokensList = apiTokens
-                                )
+                                _uiState.update {
+                                    it.copy(
+                                        nameTextField = "",
+                                        tokenTextField = "",
+                                        isServerAdded = true,
+                                        apiTokensList = apiTokens
+                                    )
+                                }
                             }
                         } catch (e: SQLiteConstraintException) {
                             val errors = mutableMapOf<String, String>().apply {
@@ -101,9 +104,11 @@ class InputApiTokenScreenViewModel @Inject constructor(
                                 }
                             }
                             withContext(Dispatchers.Main) {
-                                _uiState.value = currentState.copy(
-                                    errors = errors
-                                )
+                                _uiState.update {
+                                    it.copy(
+                                        errors = errors
+                                    )
+                                }
                             }
 
                         }
@@ -111,25 +116,30 @@ class InputApiTokenScreenViewModel @Inject constructor(
 
                     is ApiResult.SuccessApiResponse -> {
                         withContext(Dispatchers.Main) {
-                            _uiState.value =
-                                currentState.copy(errors = mapOf("token" to "Api-токен не найден"))
+                            _uiState.update {
+                                it.copy(errors = mapOf("token" to "Api-токен не найден"))
+                            }
                         }
 
                     }
 
                     is ApiResult.Error -> {
-                        _uiState.value = currentState.copy(
-                            errors = mapOf("requestError" to result.error)
-                        )
+                        _uiState.update {
+                            it.copy(
+                                errors = mapOf("requestError" to result.error)
+                            )
+                        }
                     }
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    _uiState.value = currentState.copy(
-                        errors = mapOf(
-                            "requestError" to "непредвиденная ошибка: ${e.localizedMessage}"
+                    _uiState.update {
+                        it.copy(
+                            errors = mapOf(
+                                "requestError" to "непредвиденная ошибка: ${e.localizedMessage}"
+                            )
                         )
-                    )
+                    }
                 }
 
             }
@@ -138,21 +148,25 @@ class InputApiTokenScreenViewModel @Inject constructor(
     }
 
     fun resetServerAddedFlag() {
-        _uiState.value = _uiState.value.copy(isServerAdded = false)
+        _uiState.update { it.copy(isServerAdded = false) }
     }
 
     private fun loadAllApiTokensFromDatabase() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val apiTokens = getAllApiTokensFromDatabaseUsecase.getAllApiTokens()
-                _uiState.value = uiState.value.copy(
-                    apiTokensList = apiTokens
-                )
+                _uiState.update {
+                    it.copy(
+                        apiTokensList = apiTokens
+                    )
+                }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    _uiState.value = _uiState.value.copy(
-                        errors = mapOf("requestError" to "Не удалось загрузить данные Api-токенов")
-                    )
+                    _uiState.update {
+                        it.copy(
+                            errors = mapOf("requestError" to "Не удалось загрузить данные Api-токенов")
+                        )
+                    }
                 }
 
             }
@@ -165,7 +179,7 @@ class InputApiTokenScreenViewModel @Inject constructor(
             removeApiTokenFromDatabaseUsecase.removeApiTokenFromDatabase(apiToken)
             val updatedList = getAllApiTokensFromDatabaseUsecase.getAllApiTokens()
             withContext(Dispatchers.Main) {
-                _uiState.value = _uiState.value.copy(apiTokensList = updatedList)
+                _uiState.update { it.copy(apiTokensList = updatedList) }
                 Log.d("123", "${_uiState.value.apiTokensList}")
             }
         }
