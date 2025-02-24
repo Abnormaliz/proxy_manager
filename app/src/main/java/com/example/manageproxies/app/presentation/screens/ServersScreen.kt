@@ -1,6 +1,7 @@
 package com.example.manageproxies.app.presentation.screens
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -27,11 +28,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -44,27 +43,33 @@ import com.example.manageproxies.app.presentation.vm.ServersScreenIntent
 import com.example.manageproxies.app.presentation.vm.ServersScreenViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ServerInfoScreen(viewModel: ServersScreenViewModel) {
     val uiState by viewModel.uiState.collectAsState()
-    val coroutineScope = rememberCoroutineScope()
     val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = uiState.isLoading)
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.onPrimary,
-                    titleContentColor = MaterialTheme.colorScheme.secondary,
-                ),
-                title = {
-                    Text("Общий доход: ${uiState.totalIncome}")
-                }
-            )
+            TopAppBar(colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = MaterialTheme.colorScheme.background,
+                titleContentColor = MaterialTheme.colorScheme.onBackground,
+            ), title = {
+                Text(text = buildAnnotatedString {
+                    append(stringResource(R.string.total_income, ""))
+                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                        append(uiState.totalIncome.toString())
+                    }
+                    withStyle(
+                        style = SpanStyle(
+                        )
+                    ) {
+                        append(" ₽")
+                    }
+                })
+            })
         },
     ) { paddingValues ->
         Column(
@@ -75,17 +80,12 @@ fun ServerInfoScreen(viewModel: ServersScreenViewModel) {
             Box(modifier = Modifier.fillMaxWidth()) {
                 Column {
                     SwipeRefresh(
-                        state = swipeRefreshState,
-                        onRefresh = {
-                            coroutineScope.launch {
-                                viewModel.handleIntent(
-                                    ServersScreenIntent.UpdateServersScreen
-                                )
-                            }
-                        },
-                        modifier = Modifier.fillMaxSize()
-                    )
-                    {
+                        state = swipeRefreshState, onRefresh = {
+                            viewModel.handleIntent(
+                                ServersScreenIntent.UpdateServersScreen
+                            )
+                        }, modifier = Modifier.fillMaxSize()
+                    ) {
                         ShowServers(uiState.serverList)
                     }
 
@@ -126,44 +126,56 @@ fun ServerRow(
         modifier = Modifier
             .fillMaxWidth()
             .padding(4.dp)
-            .shadow(8.dp, RoundedCornerShape(12.dp)),
+            .shadow(8.dp, RoundedCornerShape(12.dp))
+            .border(1.dp, color = MaterialTheme.colorScheme.outline, RoundedCornerShape(12.dp)),
         shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(8.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+        elevation = CardDefaults.cardElevation(8.dp)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(22.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Column {
                 Text(text = buildAnnotatedString {
-                    append(stringResource(R.string.server_id, ""))
+                    withStyle(style = SpanStyle(fontWeight = FontWeight.Thin)) {
+                        append(stringResource(R.string.server_id, ""))
+                    }
+
                     withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
                         append(server.id)
                     }
                 })
                 Text(text = buildAnnotatedString {
-                    append(stringResource(R.string.server_geo, ""))
+                    withStyle(style = SpanStyle(fontWeight = FontWeight.Thin)) {
+                        append(stringResource(R.string.server_geo, ""))
+                    }
                     withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
                         append(server.geo)
                     }
                 })
                 Text(text = buildAnnotatedString {
-                    append(stringResource(R.string.server_income, ""))
+                    withStyle(style = SpanStyle(fontWeight = FontWeight.Thin)) {
+                        append(stringResource(R.string.server_income, ""))
+                    }
                     withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
                         append(server.totalIncome.toString())
+                        append(" ₽")
                     }
                 })
                 Text(text = buildAnnotatedString {
-                    append(stringResource(R.string.server_modems_total, ""))
+                    withStyle(style = SpanStyle(fontWeight = FontWeight.Thin)) {
+                        append(stringResource(R.string.server_modems_total, ""))
+                    }
                     withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
                         append(server.allModems.toString())
                     }
                 })
                 Text(text = buildAnnotatedString {
-                    append(stringResource(R.string.server_orders_total, ""))
+                    withStyle(style = SpanStyle(fontWeight = FontWeight.Thin)) {
+                        append(stringResource(R.string.server_orders_total, ""))
+                    }
                     withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
                         append(server.allOrders.toString())
                     }
@@ -172,19 +184,25 @@ fun ServerRow(
                 AnimatedVisibility(visible = isExpanded) {
                     Column {
                         Text(text = buildAnnotatedString {
-                            append(stringResource(R.string.server_orders_clients, ""))
+                            withStyle(style = SpanStyle(fontWeight = FontWeight.Thin)) {
+                                append(stringResource(R.string.server_orders_clients, ""))
+                            }
                             withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
                                 append(server.siteOrders.toString())
                             }
                         })
                         Text(text = buildAnnotatedString {
-                            append(stringResource(R.string.server_orders_self, ""))
+                            withStyle(style = SpanStyle(fontWeight = FontWeight.Thin)) {
+                                append(stringResource(R.string.server_orders_self, ""))
+                            }
                             withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
                                 append(server.selfOrders.toString())
                             }
                         })
                         Text(text = buildAnnotatedString {
-                            append(stringResource(R.string.server_orders_test, ""))
+                            withStyle(style = SpanStyle(fontWeight = FontWeight.Thin)) {
+                                append(stringResource(R.string.server_orders_test, ""))
+                            }
                             withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
                                 append(server.testOrders.toString())
                             }

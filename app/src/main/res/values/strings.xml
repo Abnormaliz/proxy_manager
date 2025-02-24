@@ -8,6 +8,7 @@
     <string name="api_token_add_button">Добавить сервер</string>
 
     <!-- Server Row Details -->
+    <string name="total_income">Общий доход: %1$s</string>
     <string name="server_id">ID сервера: %1$s</string>
     <string name="server_geo">Гео: %1$s</string>
     <string name="server_income">Доход: %1$s</string>

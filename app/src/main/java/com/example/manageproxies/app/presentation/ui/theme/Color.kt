@@ -1,13 +1,13 @@
 package com.example.manageproxies.app.presentation.ui.theme
 import androidx.compose.ui.graphics.Color
 
-val primaryLight = Color(0xFF455E91)
+val primaryLight = Color(0xFFDADADA)
 val onPrimaryLight = Color(0xFFFFFFFF)
 val primaryContainerLight = Color(0xFFD8E2FF)
-val onPrimaryContainerLight = Color(0xFF001A42)
+val onPrimaryContainerLight = Color(0xFFDADADA)
 val secondaryLight = Color(0xFF1F6586)
 val onSecondaryLight = Color(0xFFFFFFFF)
-val secondaryContainerLight = Color(0xFFC5E7FF)
+val secondaryContainerLight = Color(0xFFDADADA) // фон иконки bottomBar
 val onSecondaryContainerLight = Color(0xFF001E2D)
 val tertiaryLight = Color(0xFF3C6090)
 val onTertiaryLight = Color(0xFFFFFFFF)
@@ -17,13 +17,13 @@ val errorLight = Color(0xFFBA1A1A)
 val onErrorLight = Color(0xFFFFFFFF)
 val errorContainerLight = Color(0xFFFFDAD6)
 val onErrorContainerLight = Color(0xFF410002)
-val backgroundLight = Color(0xFFF9F9FF)
-val onBackgroundLight = Color(0xFF1A1B20)
-val surfaceLight = Color(0xFFF6FAFE)
-val onSurfaceLight = Color(0xFF171C1F)
+val backgroundLight = Color(0xFF1A1A1A)
+val onBackgroundLight = Color(0xFFDADADA)
+val surfaceLight = Color(0xFF1A1A1A)
+val onSurfaceLight = Color(0xFFDADADA)
 val surfaceVariantLight = Color(0xFFE1E2EC)
-val onSurfaceVariantLight = Color(0xFF44474F)
-val outlineLight = Color(0xFF75777F)
+val onSurfaceVariantLight = Color(0xFF9A9A9A) // Неактивные элементы bottomBar
+val outlineLight = Color(0xFF343434)
 val outlineVariantLight = Color(0xFFC5C6D0)
 val scrimLight = Color(0xFF000000)
 val inverseSurfaceLight = Color(0xFF2C3134)
@@ -33,9 +33,9 @@ val surfaceDimLight = Color(0xFFD6DBDE)
 val surfaceBrightLight = Color(0xFFF6FAFE)
 val surfaceContainerLowestLight = Color(0xFFFFFFFF)
 val surfaceContainerLowLight = Color(0xFFF0F4F8)
-val surfaceContainerLight = Color(0xFFEAEEF2)
+val surfaceContainerLight = Color(0xFF343434) // bottomBar
 val surfaceContainerHighLight = Color(0xFFE4E9EC)
-val surfaceContainerHighestLight = Color(0xFFDFE3E7)
+val surfaceContainerHighestLight = Color(0xFF1A1A1A) // ServersScreen Card
 
 val primaryLightMediumContrast = Color(0xFF284274)
 val onPrimaryLightMediumContrast = Color(0xFFFFFFFF)
