@@ -7,6 +7,10 @@
     <string name="api_token_value_hint">Введите api-токен</string>
     <string name="api_token_add_button">Добавить сервер</string>
 
+    <!-- Servers Screen Details -->
+    <string name="servers_total_income">Доход</string>
+    <string name="servers_amount_of_servers">Сервера</string>
+
     <!-- Server Row Details -->
     <string name="server_id">ID сервера: %1$s</string>
     <string name="server_geo">Гео: %1$s</string>

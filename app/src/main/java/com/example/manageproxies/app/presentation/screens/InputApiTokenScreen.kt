@@ -8,6 +8,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,7 +20,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
+import androidx.compose.material3.Card
 import androidx.compose.material.DismissDirection
 import androidx.compose.material.DismissState
 import androidx.compose.material.DismissValue
@@ -30,6 +31,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.rememberDismissState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -52,7 +54,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.manageproxies.R
 import com.example.manageproxies.app.presentation.models.ApiToken
-import com.example.manageproxies.app.presentation.models.InputApiTokenIntent
+import com.example.manageproxies.app.presentation.vm.InputApiTokenScreenIntent
 import com.example.manageproxies.app.presentation.vm.InputApiTokenScreenViewModel
 import kotlinx.coroutines.delay
 
@@ -79,13 +81,13 @@ fun InputApiTokenScreen(viewModel: InputApiTokenScreenViewModel) {
     ) {
         InputField(
             value = uiState.nameTextField,
-            onValueChange = { viewModel.handleIntent(InputApiTokenIntent.NameChanged(it)) },
+            onValueChange = { viewModel.handleIntent(InputApiTokenScreenIntent.NameChanged(it)) },
             label = stringResource(R.string.api_token_name_hint),
             errorText = uiState.errors["name"]
         )
         InputField(
             value = uiState.tokenTextField,
-            onValueChange = { viewModel.handleIntent(InputApiTokenIntent.TokenChanged(it)) },
+            onValueChange = { viewModel.handleIntent(InputApiTokenScreenIntent.TokenScreenChanged(it)) },
             label = stringResource(R.string.api_token_value_hint),
             errorText = uiState.errors["token"]
         )
@@ -93,7 +95,7 @@ fun InputApiTokenScreen(viewModel: InputApiTokenScreenViewModel) {
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
-            onClick = { viewModel.handleIntent(InputApiTokenIntent.SaveApiToken) },
+            onClick = { viewModel.handleIntent(InputApiTokenScreenIntent.SaveApiTokenScreen) },
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E7D32)),
             modifier = Modifier
                 .fillMaxWidth()
@@ -148,7 +150,7 @@ fun InputField(value: String, onValueChange: (String) -> Unit, label: String, er
 }
 
 @Composable
-fun ShowApiTokens(tokens: List<ApiToken>, intent: (InputApiTokenIntent) -> Unit) {
+fun ShowApiTokens(tokens: List<ApiToken>, intent: (InputApiTokenScreenIntent) -> Unit) {
     val context = LocalContext.current
     LazyColumn(
         modifier = Modifier
@@ -158,13 +160,14 @@ fun ShowApiTokens(tokens: List<ApiToken>, intent: (InputApiTokenIntent) -> Unit)
         items(tokens, key = { it.id }) { token ->
             SwipeToDeleteContainer(
                 item = token,
-                onDelete = { intent(InputApiTokenIntent.RemoveApiToken(token)) }
+                onDelete = { intent(InputApiTokenScreenIntent.RemoveApiTokenScreen(token)) }
             ) {
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 4.dp),
-                    elevation = 4.dp,
+                        .padding(vertical = 4.dp)
+                        .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(12.dp)),
+                    elevation = CardDefaults.cardElevation(4.dp),
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Column(
