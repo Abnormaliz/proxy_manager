@@ -17,18 +17,15 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.stringResource
@@ -37,6 +34,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.manageproxies.R
 import com.example.manageproxies.app.presentation.models.ServerInfoUi
 import com.example.manageproxies.app.presentation.vm.ServersScreenIntent
@@ -45,57 +43,35 @@ import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ServerInfoScreen(viewModel: ServersScreenViewModel) {
     val uiState by viewModel.uiState.collectAsState()
     val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = uiState.isLoading)
 
-    Scaffold(
-        topBar = {
-            TopAppBar(colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = MaterialTheme.colorScheme.background,
-                titleContentColor = MaterialTheme.colorScheme.onBackground,
-            ), title = {
-                Text(text = buildAnnotatedString {
-                    append(stringResource(R.string.total_income, ""))
-                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                        append(uiState.totalIncome.toString())
-                    }
-                    withStyle(
-                        style = SpanStyle(
-                        )
-                    ) {
-                        append(" ₽")
-                    }
-                })
-            })
-        },
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            Box(modifier = Modifier.fillMaxWidth()) {
-                Column {
-                    SwipeRefresh(
-                        state = swipeRefreshState, onRefresh = {
-                            viewModel.handleIntent(
-                                ServersScreenIntent.UpdateServersScreen
-                            )
-                        }, modifier = Modifier.fillMaxSize()
-                    ) {
-                        ShowServers(uiState.serverList)
-                    }
 
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+
+    ) {
+        CustomToolBar(uiState.totalIncome, uiState.amountOfServers)
+        Box(modifier = Modifier.fillMaxWidth()) {
+            Column {
+                SwipeRefresh(
+                    state = swipeRefreshState, onRefresh = {
+                        viewModel.handleIntent(
+                            ServersScreenIntent.UpdateServersScreen
+                        )
+                    }, modifier = Modifier.fillMaxSize()
+                ) {
+                    ShowServers(uiState.serverList)
                 }
+
             }
         }
     }
-
-
 }
+
 
 @Composable
 fun ShowServers(
@@ -213,4 +189,95 @@ fun ServerRow(
         }
     }
 }
+
+@Composable
+fun CustomToolBar(
+    totalIncome: Int,
+    amountOfServers: Int
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(25.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceAround
+        ) {
+            Column(
+                horizontalAlignment = Alignment.Start
+            ) {
+                Text(text = stringResource(R.string.servers_total_income))
+                CustomIncomeDisplay(totalIncome)
+
+            }
+            Column {
+                Text(text = stringResource(R.string.servers_amount_of_servers))
+                CustomServersDisplay(amountOfServers)
+            }
+        }
+    }
+
+}
+
+@Composable
+fun CustomIncomeDisplay(number: Int) {
+    val numberString = number.toString()
+
+    val formattedText = buildAnnotatedString {
+        if (number >= 1000) {
+            val mainPart = numberString.dropLast(3)
+            val smallPart = numberString.takeLast(3)
+
+            withStyle(style = SpanStyle(fontSize = 40.sp)) {
+                append(mainPart)
+            }
+            append(".")
+            withStyle(style = SpanStyle(fontSize = 25.sp)) {
+                append(smallPart)
+                append(" ₽")
+            }
+        } else {
+            withStyle(style = SpanStyle(fontSize = 40.sp)) {
+                append(numberString.first())
+            }
+            withStyle(style = SpanStyle(fontSize = 25.sp)) {
+                append(numberString.drop(1))
+                append(" ₽")
+            }
+        }
+    }
+    Text(text = formattedText)
+}
+
+@Composable
+fun CustomServersDisplay(number: Int) {
+    val numberString = number.toString()
+
+    val formattedText = buildAnnotatedString {
+        if (number >= 1000) {
+            val mainPart = numberString.dropLast(3)
+            val smallPart = numberString.takeLast(3)
+
+            withStyle(style = SpanStyle(fontSize = 40.sp)) {
+                append(mainPart)
+            }
+            append(".")
+            withStyle(style = SpanStyle(fontSize = 30.sp)) {
+                append(smallPart)
+            }
+        } else {
+            withStyle(style = SpanStyle(fontSize = 40.sp)) {
+                append(numberString.first())
+            }
+            withStyle(style = SpanStyle(fontSize = 30.sp)) {
+                append(numberString.drop(1))
+            }
+        }
+    }
+    Text(text = formattedText)
+}
+
+
 

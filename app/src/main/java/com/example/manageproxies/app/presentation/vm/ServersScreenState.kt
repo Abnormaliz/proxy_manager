@@ -8,5 +8,6 @@ data class ServersScreenState(
     val apiTokenList: List<ApiToken> = emptyList(),
     val errors: Map<String, String> = emptyMap(),
     val isLoading: Boolean = false,
-    val totalIncome: Int = 0
+    val totalIncome: Int = 0,
+    val amountOfServers: Int = 0
 )

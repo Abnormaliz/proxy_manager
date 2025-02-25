@@ -33,6 +33,7 @@ class ServersScreenViewModel @Inject constructor(
             loadAllApiTokensFromDatabase()
             getServerApi()
             countTotalIncome()
+            countAmountOfServers()
             _uiState.update { it.copy(isLoading = false) }
         }
 
@@ -47,6 +48,7 @@ class ServersScreenViewModel @Inject constructor(
                     loadAllApiTokensFromDatabase()
                     getServerApi()
                     countTotalIncome()
+                    countAmountOfServers()
                     _uiState.update { it.copy(isLoading = false) }
                 }
             }
@@ -96,6 +98,13 @@ class ServersScreenViewModel @Inject constructor(
         _uiState.update { it ->
             val totalIncome = it.serverList.sumOf { it.totalIncome }
             it.copy(totalIncome = totalIncome)
+        }
+    }
+
+    private fun countAmountOfServers() {
+        _uiState.update { it ->
+            val amountOfServers = it.serverList.count()
+            it.copy(amountOfServers = amountOfServers)
         }
     }
 }
