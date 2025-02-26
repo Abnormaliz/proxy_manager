@@ -97,7 +97,8 @@ fun ShowServers(
 fun ServerRow(
     server: ServerInfoUi
 ) {
-    var isExpanded by remember { mutableStateOf(false) }
+    var areOrdersExpanded by remember { mutableStateOf(false) }
+    var areModemsExpanded by remember { mutableStateOf(false) }
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -142,12 +143,32 @@ fun ServerRow(
                 })
                 Text(text = buildAnnotatedString {
                     withStyle(style = SpanStyle(fontWeight = FontWeight.Thin)) {
-                        append(stringResource(R.string.server_modems_total, ""))
+                        append(stringResource(R.string.server_modems_selling, ""))
                     }
                     withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                        append(server.allModems.toString())
+                        append(server.sellingModems.toString())
                     }
-                })
+                }, modifier = Modifier.clickable { areModemsExpanded = !areModemsExpanded })
+                AnimatedVisibility(visible = areModemsExpanded) {
+                    Column {
+                        Text(text = buildAnnotatedString {
+                            withStyle(style = SpanStyle(fontWeight = FontWeight.Thin)) {
+                                append(stringResource(R.string.server_modems_activated, ""))
+                            }
+                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                                append(server.activatedModems.toString())
+                            }
+                        })
+                        Text(text = buildAnnotatedString {
+                            withStyle(style = SpanStyle(fontWeight = FontWeight.Thin)) {
+                                append(stringResource(R.string.server_modems_total, ""))
+                            }
+                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                                append(server.allModems.toString())
+                            }
+                        })
+                    }
+                }
                 Text(text = buildAnnotatedString {
                     withStyle(style = SpanStyle(fontWeight = FontWeight.Thin)) {
                         append(stringResource(R.string.server_orders_total, ""))
@@ -155,9 +176,9 @@ fun ServerRow(
                     withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
                         append(server.allOrders.toString())
                     }
-                }, modifier = Modifier.clickable { isExpanded = !isExpanded })
+                }, modifier = Modifier.clickable { areOrdersExpanded = !areOrdersExpanded })
 
-                AnimatedVisibility(visible = isExpanded) {
+                AnimatedVisibility(visible = areOrdersExpanded) {
                     Column {
                         Text(text = buildAnnotatedString {
                             withStyle(style = SpanStyle(fontWeight = FontWeight.Thin)) {
@@ -198,7 +219,7 @@ fun CustomToolBar(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(25.dp),
+            .padding(20.dp),
         contentAlignment = Alignment.Center
     ) {
         Row(

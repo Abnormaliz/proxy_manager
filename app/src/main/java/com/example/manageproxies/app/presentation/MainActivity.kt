@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.sharp.Menu
 import androidx.compose.material3.Icon
@@ -23,7 +22,9 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.vectorResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -71,20 +72,20 @@ fun BottomNavigationBar() {
         Screen(
             "Servers",
             "ServersScreen",
-            selectedIcon = Icons.Filled.AccountCircle,
-            unselectedIcon = Icons.Default.AccountCircle
+            selectedIcon = ImageVector.vectorResource(R.drawable.servers_bold_icon),
+            unselectedIcon = ImageVector.vectorResource(R.drawable.servers_bold_icon)
         ),
         Screen(
             "Modems",
             "ListOfModemsScreen",
-            selectedIcon = Icons.Filled.Menu,
-            unselectedIcon = Icons.Sharp.Menu
+            selectedIcon = ImageVector.vectorResource(R.drawable.modems_bold_icon),
+            unselectedIcon = ImageVector.vectorResource(R.drawable.modems_bold_icon)
         ),
         Screen(
-            "Add",
+            "Tokens",
             "InputApiTokenScreen",
-            selectedIcon = Icons.Filled.AddCircle,
-            unselectedIcon = Icons.Default.AddCircle
+            selectedIcon = ImageVector.vectorResource(R.drawable.tokens_bold_icon),
+            unselectedIcon = ImageVector.vectorResource(R.drawable.tokens_bold_icon)
         )
     )
 

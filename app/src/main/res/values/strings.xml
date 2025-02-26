@@ -15,6 +15,8 @@
     <string name="server_id">ID сервера: %1$s</string>
     <string name="server_geo">Гео: %1$s</string>
     <string name="server_income">Доход: %1$s</string>
+    <string name="server_modems_selling">В продаже: %1$s</string>
+    <string name="server_modems_activated">Включено модемов: %1$s</string>
     <string name="server_modems_total">Всего модемов: %1$s</string>
     <string name="server_orders_total">Всего заказов: %1$s</string>
     <string name="server_orders_clients">Клиенты с сайта: %1$s</string>

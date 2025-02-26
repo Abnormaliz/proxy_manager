@@ -8,6 +8,8 @@ data class ServerInfoUi(
     val totalIncome: Int,
     val dailyIncome: Int? = null,
     val allModems: Int? = null,
+    val sellingModems: Int? = null,
+    val activatedModems: Int? = null,
     val allOrders: Int? = null,
     val siteOrders: Int? = null,
     val selfOrders: Int? = null,
