@@ -29,7 +29,6 @@ class ServersScreenViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
-            delay(3000L)
             loadAllApiTokensFromDatabase()
             getServerApi()
             countTotalIncome()
@@ -44,7 +43,6 @@ class ServersScreenViewModel @Inject constructor(
             is ServersScreenIntent.UpdateServersScreen -> {
                 viewModelScope.launch {
                     _uiState.update { it.copy(isLoading = true) }
-                    delay(3000L)
                     loadAllApiTokensFromDatabase()
                     getServerApi()
                     countTotalIncome()

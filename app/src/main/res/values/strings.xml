@@ -12,14 +12,14 @@
     <string name="servers_amount_of_servers">Сервера</string>
 
     <!-- Server Row Details -->
-    <string name="server_id">ID сервера: %1$s</string>
-    <string name="server_geo">Гео: %1$s</string>
-    <string name="server_income">Доход: %1$s</string>
-    <string name="server_modems_selling">В продаже: %1$s</string>
-    <string name="server_modems_activated">Включено модемов: %1$s</string>
-    <string name="server_modems_total">Всего модемов: %1$s</string>
-    <string name="server_orders_total">Всего заказов: %1$s</string>
-    <string name="server_orders_clients">Клиенты с сайта: %1$s</string>
-    <string name="server_orders_self">Выдано вручную: %1$s</string>
-    <string name="server_orders_test">Выдано на тест: %1$s</string>
+    <string name="server_id">ID сервера:</string>
+    <string name="server_geo">Гео:</string>
+    <string name="server_income">Доход:</string>
+    <string name="server_modems_selling">В продаже:</string>
+    <string name="server_modems_activated">Включено модемов:</string>
+    <string name="server_modems_total">Всего модемов:</string>
+    <string name="server_orders_total">Всего заказов:</string>
+    <string name="server_orders_clients">Клиенты с сайта:</string>
+    <string name="server_orders_self">Выдано вручную:</string>
+    <string name="server_orders_test">Выдано на тест:</string>
 </resources>

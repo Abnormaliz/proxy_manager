@@ -28,6 +28,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.manageproxies.R
 import com.example.manageproxies.app.presentation.navigation.Screen
@@ -65,9 +66,8 @@ fun BottomNavigationBar() {
     val serversScreenViewModel = hiltViewModel<ServersScreenViewModel>()
     val inputApiTokenScreenViewModel = hiltViewModel<InputApiTokenScreenViewModel>()
     val navController = rememberNavController()
-    var selectedItemIndex by remember {
-        mutableIntStateOf(0)
-    }
+    val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
+
     val screens = listOf(
         Screen(
             "Servers",
@@ -92,20 +92,19 @@ fun BottomNavigationBar() {
     Scaffold(
         bottomBar = {
             NavigationBar {
-                screens.forEachIndexed { index, screen ->
+                screens.forEach { screen ->
                     NavigationBarItem(
-                        selected = selectedItemIndex == index,
+                        selected = currentRoute == screen.route,
                         onClick = {
-                            selectedItemIndex = index
+                            if (currentRoute != screen.route)
                             navController.navigate(screen.route) {
-                                popUpTo(navController.graph.startDestinationId) { saveState = true }
                                 launchSingleTop = true
                                 restoreState = true
                             }
                         },
                         icon = {
                             Icon(
-                                imageVector = if (index == selectedItemIndex) {
+                                imageVector = if (currentRoute == screen.route) {
                                     screen.selectedIcon
                                 } else screen.unselectedIcon, contentDescription = screen.title
                             )
@@ -127,7 +126,7 @@ fun BottomNavigationBar() {
                 InputApiTokenScreen(inputApiTokenScreenViewModel)
             }
             composable("ServersScreen") {
-                ServerInfoScreen(serversScreenViewModel)
+                ServerInfoScreen(serversScreenViewModel, navController = navController)
             }
             composable("ListOfModemsScreen") {
                 ModemsInfoScreen(sharedViewModel)

@@ -32,9 +32,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.manageproxies.R
 import com.example.manageproxies.app.presentation.models.ServerInfoUi
 import com.example.manageproxies.app.presentation.vm.ServersScreenIntent
@@ -44,7 +46,7 @@ import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
 
 @Composable
-fun ServerInfoScreen(viewModel: ServersScreenViewModel) {
+fun ServerInfoScreen(viewModel: ServersScreenViewModel, navController: NavController) {
     val uiState by viewModel.uiState.collectAsState()
     val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = uiState.isLoading)
 
@@ -64,7 +66,7 @@ fun ServerInfoScreen(viewModel: ServersScreenViewModel) {
                         )
                     }, modifier = Modifier.fillMaxSize()
                 ) {
-                    ShowServers(uiState.serverList)
+                    ShowServers(uiState.serverList, navController)
                 }
 
             }
@@ -75,7 +77,8 @@ fun ServerInfoScreen(viewModel: ServersScreenViewModel) {
 
 @Composable
 fun ShowServers(
-    serverInfo: List<ServerInfoUi>?
+    serverInfo: List<ServerInfoUi>?,
+    navController: NavController
 ) {
     LazyColumn(
         modifier = Modifier.wrapContentSize(),
@@ -84,8 +87,9 @@ fun ShowServers(
     ) {
         serverInfo?.let { servers ->
             items(servers) { server ->
-                ServerRow(
-                    server = server
+                ShowServerInfo(
+                    server = server,
+                    navController = navController
                 )
             }
 
@@ -94,8 +98,9 @@ fun ShowServers(
 }
 
 @Composable
-fun ServerRow(
-    server: ServerInfoUi
+fun ShowServerInfo(
+    server: ServerInfoUi,
+    navController: NavController
 ) {
     var areOrdersExpanded by remember { mutableStateOf(false) }
     var areModemsExpanded by remember { mutableStateOf(false) }
@@ -106,7 +111,8 @@ fun ServerRow(
             .shadow(8.dp, RoundedCornerShape(12.dp))
             .border(1.dp, color = MaterialTheme.colorScheme.outline, RoundedCornerShape(12.dp)),
         shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(8.dp)
+        elevation = CardDefaults.cardElevation(8.dp),
+        onClick = { navController.navigate("ListOfModemsScreen") }
     ) {
         Row(
             modifier = Modifier
@@ -115,95 +121,47 @@ fun ServerRow(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Column {
-                Text(text = buildAnnotatedString {
-                    withStyle(style = SpanStyle(fontWeight = FontWeight.Thin)) {
-                        append(stringResource(R.string.server_id, ""))
-                    }
-
-                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                        append(server.id)
-                    }
-                })
-                Text(text = buildAnnotatedString {
-                    withStyle(style = SpanStyle(fontWeight = FontWeight.Thin)) {
-                        append(stringResource(R.string.server_geo, ""))
-                    }
-                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                        append(server.geo)
-                    }
-                })
-                Text(text = buildAnnotatedString {
-                    withStyle(style = SpanStyle(fontWeight = FontWeight.Thin)) {
-                        append(stringResource(R.string.server_income, ""))
-                    }
-                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                        append(server.totalIncome.toString())
-                        append(" ₽")
-                    }
-                })
-                Text(text = buildAnnotatedString {
-                    withStyle(style = SpanStyle(fontWeight = FontWeight.Thin)) {
-                        append(stringResource(R.string.server_modems_selling, ""))
-                    }
-                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                        append(server.sellingModems.toString())
-                    }
-                }, modifier = Modifier.clickable { areModemsExpanded = !areModemsExpanded })
+                ServerInfoFormattedText(R.string.server_id, server.id)
+                ServerInfoFormattedText(R.string.server_geo, server.geo)
+                ServerInfoFormattedText(R.string.server_income, server.totalIncome.toString(), " ₽")
+                ServerInfoFormattedText(
+                    R.string.server_modems_selling,
+                    server.sellingModems.toString(),
+                    textDecoration = TextDecoration.Underline,
+                    modifier = Modifier.clickable { areModemsExpanded = !areModemsExpanded }
+                )
                 AnimatedVisibility(visible = areModemsExpanded) {
                     Column {
-                        Text(text = buildAnnotatedString {
-                            withStyle(style = SpanStyle(fontWeight = FontWeight.Thin)) {
-                                append(stringResource(R.string.server_modems_activated, ""))
-                            }
-                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append(server.activatedModems.toString())
-                            }
-                        })
-                        Text(text = buildAnnotatedString {
-                            withStyle(style = SpanStyle(fontWeight = FontWeight.Thin)) {
-                                append(stringResource(R.string.server_modems_total, ""))
-                            }
-                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append(server.allModems.toString())
-                            }
-                        })
+                        ServerInfoFormattedText(
+                            R.string.server_modems_activated,
+                            server.activatedModems.toString()
+                        )
+                        ServerInfoFormattedText(
+                            R.string.server_modems_total,
+                            server.allModems.toString()
+                        )
                     }
                 }
-                Text(text = buildAnnotatedString {
-                    withStyle(style = SpanStyle(fontWeight = FontWeight.Thin)) {
-                        append(stringResource(R.string.server_orders_total, ""))
-                    }
-                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                        append(server.allOrders.toString())
-                    }
-                }, modifier = Modifier.clickable { areOrdersExpanded = !areOrdersExpanded })
+                ServerInfoFormattedText(
+                    R.string.server_orders_total,
+                    server.allOrders.toString(),
+                    textDecoration = TextDecoration.Underline,
+                    modifier = Modifier.clickable { areOrdersExpanded = !areOrdersExpanded })
 
                 AnimatedVisibility(visible = areOrdersExpanded) {
                     Column {
-                        Text(text = buildAnnotatedString {
-                            withStyle(style = SpanStyle(fontWeight = FontWeight.Thin)) {
-                                append(stringResource(R.string.server_orders_clients, ""))
-                            }
-                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append(server.siteOrders.toString())
-                            }
-                        })
-                        Text(text = buildAnnotatedString {
-                            withStyle(style = SpanStyle(fontWeight = FontWeight.Thin)) {
-                                append(stringResource(R.string.server_orders_self, ""))
-                            }
-                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append(server.selfOrders.toString())
-                            }
-                        })
-                        Text(text = buildAnnotatedString {
-                            withStyle(style = SpanStyle(fontWeight = FontWeight.Thin)) {
-                                append(stringResource(R.string.server_orders_test, ""))
-                            }
-                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append(server.testOrders.toString())
-                            }
-                        })
+                        ServerInfoFormattedText(
+                            R.string.server_orders_clients,
+                            server.siteOrders.toString()
+                        )
+                        ServerInfoFormattedText(
+                            R.string.server_orders_self,
+                            server.selfOrders.toString()
+                        )
+                        ServerInfoFormattedText(
+                            R.string.server_orders_test,
+                            server.testOrders.toString()
+                        )
                     }
                 }
             }
@@ -230,12 +188,12 @@ fun CustomToolBar(
                 horizontalAlignment = Alignment.Start
             ) {
                 Text(text = stringResource(R.string.servers_total_income))
-                CustomIncomeDisplay(totalIncome)
+                CustomNumberDisplay(totalIncome, " ₽")
 
             }
             Column {
                 Text(text = stringResource(R.string.servers_amount_of_servers))
-                CustomServersDisplay(amountOfServers)
+                CustomNumberDisplay(amountOfServers)
             }
         }
     }
@@ -243,62 +201,72 @@ fun CustomToolBar(
 }
 
 @Composable
-fun CustomIncomeDisplay(number: Int) {
+fun CustomNumberDisplay(number: Int, args: String? = null) {
     val numberString = number.toString()
 
     val formattedText = buildAnnotatedString {
+        val mainPartSize = 40.sp
+        val smallPartSize = 25.sp
+
         if (number >= 1000) {
             val mainPart = numberString.dropLast(3)
             val smallPart = numberString.takeLast(3)
 
-            withStyle(style = SpanStyle(fontSize = 40.sp)) {
+
+            withStyle(style = SpanStyle(fontSize = mainPartSize)) {
                 append(mainPart)
             }
             append(".")
-            withStyle(style = SpanStyle(fontSize = 25.sp)) {
+            withStyle(style = SpanStyle(fontSize = smallPartSize)) {
                 append(smallPart)
-                append(" ₽")
             }
         } else {
-            withStyle(style = SpanStyle(fontSize = 40.sp)) {
+            withStyle(style = SpanStyle(fontSize = mainPartSize)) {
                 append(numberString.first())
             }
-            withStyle(style = SpanStyle(fontSize = 25.sp)) {
+            withStyle(style = SpanStyle(fontSize = smallPartSize)) {
                 append(numberString.drop(1))
-                append(" ₽")
+
             }
         }
+        args?.let {
+            withStyle(style = SpanStyle(fontSize = smallPartSize)) {
+                append(it)
+            }
+        }
+
     }
     Text(text = formattedText)
 }
 
 @Composable
-fun CustomServersDisplay(number: Int) {
-    val numberString = number.toString()
+fun ServerInfoFormattedText(
+    stringResource: Int,
+    data: String,
+    args: String? = null,
+    textDecoration: TextDecoration? = null,
+    modifier: Modifier = Modifier
+) {
+    Text(
+        text = buildAnnotatedString {
+            withStyle(
+                style = SpanStyle(
+                    fontWeight = FontWeight.Thin,
+                    textDecoration = textDecoration ?: TextDecoration.None
+                )
+            ) {
+                append(stringResource(stringResource))
 
-    val formattedText = buildAnnotatedString {
-        if (number >= 1000) {
-            val mainPart = numberString.dropLast(3)
-            val smallPart = numberString.takeLast(3)
+            }
+            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                append(" ")
+                append(data)
+                args?.let { append(it) }
 
-            withStyle(style = SpanStyle(fontSize = 40.sp)) {
-                append(mainPart)
             }
-            append(".")
-            withStyle(style = SpanStyle(fontSize = 30.sp)) {
-                append(smallPart)
-            }
-        } else {
-            withStyle(style = SpanStyle(fontSize = 40.sp)) {
-                append(numberString.first())
-            }
-            withStyle(style = SpanStyle(fontSize = 30.sp)) {
-                append(numberString.drop(1))
-            }
-        }
-    }
-    Text(text = formattedText)
+        },
+        modifier = modifier
+    )
 }
-
 
 
