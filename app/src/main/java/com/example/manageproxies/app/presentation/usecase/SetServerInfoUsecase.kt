@@ -33,8 +33,11 @@ class SetServerInfoUsecase @Inject constructor(
                         val relatedModems = modemData.filter { modem ->
                             modem.domain.contains(server.server_domain)
                         }
-                        ServerInfoUi(id = server.server_id,
+                        ServerInfoUi(
+                            token = token,
+                            id = server.server_id,
                             geo = server.server_geo,
+                            domain = server.server_domain,
                             totalIncome = server.server_approximate_income.extractDigitsOnly().toInt(),
                             allModems = relatedModems.size,
                             sellingModems = relatedModems.count { it.isSelling },

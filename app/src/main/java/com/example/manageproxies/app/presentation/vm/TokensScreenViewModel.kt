@@ -21,35 +21,35 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
-class InputApiTokenScreenViewModel @Inject constructor(
+class TokensScreenViewModel @Inject constructor(
     private val saveApiTokenToDatabaseUsecase: SaveApiTokenToDatabaseUsecase,
     private val checkApiTokenUsecase: CheckApiTokenUsecase,
     private val getAllApiTokensFromDatabaseUsecase: GetAllApiTokensFromDatabaseUsecase,
     private val removeApiTokenFromDatabaseUsecase: RemoveApiTokenFromDatabaseUsecase
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow<InputApiTokenScreenState>(InputApiTokenScreenState())
-    val uiState: StateFlow<InputApiTokenScreenState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow<TokensScreenState>(TokensScreenState())
+    val uiState: StateFlow<TokensScreenState> = _uiState.asStateFlow()
 
     init {
         loadAllApiTokensFromDatabase()
     }
 
-    fun handleIntent(intent: InputApiTokenScreenIntent) {
+    fun handleIntent(intent: TokensScreenIntent) {
         when (intent) {
-            is InputApiTokenScreenIntent.NameChanged -> {
+            is TokensScreenIntent.NameChanged -> {
                 _uiState.update { it.copy(nameTextField = intent.newValue ?: "") }
             }
 
-            is InputApiTokenScreenIntent.TokenScreenChanged -> {
+            is TokensScreenIntent.TokensScreenChanged -> {
                 _uiState.update { it.copy(tokenTextField = intent.newValue ?: "") }
             }
 
-            is InputApiTokenScreenIntent.SaveApiTokenScreen -> {
+            is TokensScreenIntent.SaveApiTokensScreen -> {
                 saveApiToken()
             }
 
-            is InputApiTokenScreenIntent.RemoveApiTokenScreen -> {
+            is TokensScreenIntent.RemoveApiTokensScreen -> {
                 removeApiTokenFromDatabase(intent.apiToken)
             }
         }

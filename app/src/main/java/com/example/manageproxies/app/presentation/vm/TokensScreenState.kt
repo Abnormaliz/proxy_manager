@@ -2,7 +2,7 @@ package com.example.manageproxies.app.presentation.vm
 
 import com.example.manageproxies.app.presentation.models.ApiToken
 
-data class InputApiTokenScreenState(
+data class TokensScreenState(
     val nameTextField: String = "",
     val tokenTextField: String = "",
     val errors: Map<String, String> = emptyMap(),

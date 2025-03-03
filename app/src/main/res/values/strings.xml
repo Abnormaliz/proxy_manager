@@ -11,6 +11,7 @@
     <string name="servers_total_income">Доход</string>
     <string name="servers_amount_of_servers">Сервера</string>
 
+
     <!-- Server Row Details -->
     <string name="server_id">ID сервера:</string>
     <string name="server_geo">Гео:</string>
@@ -22,4 +23,8 @@
     <string name="server_orders_clients">Клиенты с сайта:</string>
     <string name="server_orders_self">Выдано вручную:</string>
     <string name="server_orders_test">Выдано на тест:</string>
+
+    <!-- Modems Screen Details -->
+    <string name="modems_are_selling">В продаже</string>
+    <string name="modems_all_orders">Заказы</string>
 </resources>

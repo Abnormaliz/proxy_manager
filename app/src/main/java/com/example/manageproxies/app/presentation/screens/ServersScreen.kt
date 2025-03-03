@@ -36,7 +36,6 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import com.example.manageproxies.R
 import com.example.manageproxies.app.presentation.models.ServerInfoUi
 import com.example.manageproxies.app.presentation.vm.ServersScreenIntent
@@ -46,7 +45,7 @@ import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
 
 @Composable
-fun ServerInfoScreen(viewModel: ServersScreenViewModel, navController: NavController) {
+fun ServersScreen(viewModel: ServersScreenViewModel, onNavigateToModemsList: (String) -> Unit) {
     val uiState by viewModel.uiState.collectAsState()
     val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = uiState.isLoading)
 
@@ -66,7 +65,7 @@ fun ServerInfoScreen(viewModel: ServersScreenViewModel, navController: NavContro
                         )
                     }, modifier = Modifier.fillMaxSize()
                 ) {
-                    ShowServers(uiState.serverList, navController)
+                    ShowServers(uiState.serverList, onNavigateToModemsList)
                 }
 
             }
@@ -78,7 +77,7 @@ fun ServerInfoScreen(viewModel: ServersScreenViewModel, navController: NavContro
 @Composable
 fun ShowServers(
     serverInfo: List<ServerInfoUi>?,
-    navController: NavController
+    onNavigateToModemsList: (String) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier.wrapContentSize(),
@@ -89,7 +88,7 @@ fun ShowServers(
             items(servers) { server ->
                 ShowServerInfo(
                     server = server,
-                    navController = navController
+                    onNavigateToModemsList = onNavigateToModemsList
                 )
             }
 
@@ -100,7 +99,7 @@ fun ShowServers(
 @Composable
 fun ShowServerInfo(
     server: ServerInfoUi,
-    navController: NavController
+    onNavigateToModemsList: (String) -> Unit
 ) {
     var areOrdersExpanded by remember { mutableStateOf(false) }
     var areModemsExpanded by remember { mutableStateOf(false) }
@@ -112,7 +111,7 @@ fun ShowServerInfo(
             .border(1.dp, color = MaterialTheme.colorScheme.outline, RoundedCornerShape(12.dp)),
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(8.dp),
-        onClick = { navController.navigate("ListOfModemsScreen") }
+        onClick = { onNavigateToModemsList(server.domain) }
     ) {
         Row(
             modifier = Modifier
@@ -170,7 +169,7 @@ fun ShowServerInfo(
 }
 
 @Composable
-fun CustomToolBar(
+private fun CustomToolBar(
     totalIncome: Int,
     amountOfServers: Int
 ) {
@@ -201,7 +200,7 @@ fun CustomToolBar(
 }
 
 @Composable
-fun CustomNumberDisplay(number: Int, args: String? = null) {
+private fun CustomNumberDisplay(number: Int, args: String? = null) {
     val numberString = number.toString()
 
     val formattedText = buildAnnotatedString {

@@ -54,12 +54,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.manageproxies.R
 import com.example.manageproxies.app.presentation.models.ApiToken
-import com.example.manageproxies.app.presentation.vm.InputApiTokenScreenIntent
-import com.example.manageproxies.app.presentation.vm.InputApiTokenScreenViewModel
+import com.example.manageproxies.app.presentation.vm.TokensScreenIntent
+import com.example.manageproxies.app.presentation.vm.TokensScreenViewModel
 import kotlinx.coroutines.delay
 
 @Composable
-fun InputApiTokenScreen(viewModel: InputApiTokenScreenViewModel) {
+fun TokensScreen(viewModel: TokensScreenViewModel) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
@@ -81,13 +81,13 @@ fun InputApiTokenScreen(viewModel: InputApiTokenScreenViewModel) {
     ) {
         InputField(
             value = uiState.nameTextField,
-            onValueChange = { viewModel.handleIntent(InputApiTokenScreenIntent.NameChanged(it)) },
+            onValueChange = { viewModel.handleIntent(TokensScreenIntent.NameChanged(it)) },
             label = stringResource(R.string.api_token_name_hint),
             errorText = uiState.errors["name"]
         )
         InputField(
             value = uiState.tokenTextField,
-            onValueChange = { viewModel.handleIntent(InputApiTokenScreenIntent.TokenScreenChanged(it)) },
+            onValueChange = { viewModel.handleIntent(TokensScreenIntent.TokensScreenChanged(it)) },
             label = stringResource(R.string.api_token_value_hint),
             errorText = uiState.errors["token"]
         )
@@ -95,7 +95,7 @@ fun InputApiTokenScreen(viewModel: InputApiTokenScreenViewModel) {
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
-            onClick = { viewModel.handleIntent(InputApiTokenScreenIntent.SaveApiTokenScreen) },
+            onClick = { viewModel.handleIntent(TokensScreenIntent.SaveApiTokensScreen) },
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E7D32)),
             modifier = Modifier
                 .fillMaxWidth()
@@ -150,7 +150,7 @@ fun InputField(value: String, onValueChange: (String) -> Unit, label: String, er
 }
 
 @Composable
-fun ShowApiTokens(tokens: List<ApiToken>, intent: (InputApiTokenScreenIntent) -> Unit) {
+fun ShowApiTokens(tokens: List<ApiToken>, intent: (TokensScreenIntent) -> Unit) {
     val context = LocalContext.current
     LazyColumn(
         modifier = Modifier
@@ -160,7 +160,7 @@ fun ShowApiTokens(tokens: List<ApiToken>, intent: (InputApiTokenScreenIntent) ->
         items(tokens, key = { it.id }) { token ->
             SwipeToDeleteContainer(
                 item = token,
-                onDelete = { intent(InputApiTokenScreenIntent.RemoveApiTokenScreen(token)) }
+                onDelete = { intent(TokensScreenIntent.RemoveApiTokensScreen(token)) }
             ) {
                 Card(
                     modifier = Modifier

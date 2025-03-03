@@ -34,6 +34,7 @@ class ServersScreenViewModel @Inject constructor(
             countTotalIncome()
             countAmountOfServers()
             _uiState.update { it.copy(isLoading = false) }
+
         }
 
     }
@@ -86,10 +87,7 @@ class ServersScreenViewModel @Inject constructor(
             Log.d("ServersScreen", "${_uiState.value.apiTokenList}")
         } catch (e: Exception) {
             _uiState.update { it.copy(errors = mapOf("requestError" to "Не удалось загрузить данные Api-токенов")) }
-
         }
-
-
     }
 
     private fun countTotalIncome() {

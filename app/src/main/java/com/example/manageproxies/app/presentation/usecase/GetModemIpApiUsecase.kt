@@ -8,7 +8,8 @@ class GetModemIpApiUsecase @Inject constructor(
     private val tokenRepository: TokenRepository
 ) {
 
-    suspend fun execute(eid: String?): ModemIp {
-        return tokenRepository.getModemIpFromApi(tokenRepository.getApiTokenByName("1").value.toString(), eid)
+    suspend fun execute(token: String, eid: String?): ModemIp {
+
+        return tokenRepository.getModemIpFromApi(token, eid)
     }
 }
