@@ -3,9 +3,11 @@ package com.example.manageproxies.app.presentation.vm
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.manageproxies.app.presentation.models.toModemIpUi
 import com.example.manageproxies.app.presentation.usecase.GetAllApiTokensFromDatabaseUsecase
 import com.example.manageproxies.app.presentation.usecase.GetModemIpApiUsecase
+import com.example.manageproxies.app.presentation.usecase.ModemManager
 import com.example.manageproxies.app.presentation.usecase.SetOneServerInfoUsecase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -21,7 +23,8 @@ import javax.inject.Inject
 class ModemsScreenViewModel @Inject constructor(
     private val getModemIpApiUseCase: GetModemIpApiUsecase,
     private val setOneServerInfoUsecase: SetOneServerInfoUsecase,
-    private val getAllApiTokenFromDatabaseUsecase: GetAllApiTokensFromDatabaseUsecase
+    private val getAllApiTokenFromDatabaseUsecase: GetAllApiTokensFromDatabaseUsecase,
+    private val modemManager: ModemManager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<ModemsScreenState>(ModemsScreenState())
@@ -42,7 +45,15 @@ class ModemsScreenViewModel @Inject constructor(
             }
 
             is ModemsScreenIntent.UpdateServerDomain -> _uiState.update {
-                it.copy(serverDomain = intent.serverDomain)
+                val currentDomain = it.serverDomain
+                if (currentDomain != intent.serverDomain) {
+                    viewModelScope.launch {
+                        setServerInfo()
+                    }
+                    Log.d("123", "modemManager: ${modemManager.serverDomain.value}")
+                    it.copy(serverDomain = modemManager.serverDomain.value)
+                } else it
+
             }
         }
     }

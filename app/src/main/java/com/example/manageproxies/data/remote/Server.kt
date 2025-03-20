@@ -8,5 +8,5 @@ data class Server(
     val server_local_ip: String,
     val server_comment: String,
     val server_error_count: String,
-    val server_approximate_income: String,
+    val server_approximate_income: String?,
 )

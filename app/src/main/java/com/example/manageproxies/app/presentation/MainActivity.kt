@@ -26,17 +26,21 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.manageproxies.R
 import com.example.manageproxies.app.presentation.navigation.Screen
-import com.example.manageproxies.app.presentation.screens.TokensScreen
 import com.example.manageproxies.app.presentation.screens.ModemsScreen
 import com.example.manageproxies.app.presentation.screens.ServersScreen
+import com.example.manageproxies.app.presentation.screens.TokensScreen
 import com.example.manageproxies.app.presentation.ui.theme.AppTheme
-import com.example.manageproxies.app.presentation.vm.TokensScreenViewModel
-import com.example.manageproxies.app.presentation.vm.ServersScreenViewModel
+import com.example.manageproxies.app.presentation.usecase.ModemManager
 import com.example.manageproxies.app.presentation.vm.ModemsScreenViewModel
+import com.example.manageproxies.app.presentation.vm.ServersScreenViewModel
+import com.example.manageproxies.app.presentation.vm.TokensScreenViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject lateinit var modemManager: ModemManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,7 +51,7 @@ class MainActivity : ComponentActivity() {
                         .fillMaxSize()
                         .background(color = colorResource(R.color.background))
                 ) {
-                    BottomNavigationBar()
+                    BottomNavigationBar(modemManager)
                 }
             }
         }
@@ -55,7 +59,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun BottomNavigationBar() {
+fun BottomNavigationBar(modemManager: ModemManager) {
     val modemsScreenViewModel = hiltViewModel<ModemsScreenViewModel>()
     val serversScreenViewModel = hiltViewModel<ServersScreenViewModel>()
     val tokensScreenViewModel = hiltViewModel<TokensScreenViewModel>()
@@ -65,7 +69,9 @@ fun BottomNavigationBar() {
 
     val screens = listOf(
         Screen.Servers to R.drawable.servers_bold_icon,
-        Screen.Modems(modemsScreenViewModel.uiState.value.serverDomain ?: "") to R.drawable.modems_bold_icon,
+        Screen.Modems(
+            modemsScreenViewModel.uiState.value.serverDomain ?: ""
+        ) to R.drawable.modems_bold_icon,
         Screen.Tokens to R.drawable.tokens_bold_icon
 
     )
@@ -109,10 +115,12 @@ fun BottomNavigationBar() {
                 TokensScreen(tokensScreenViewModel)
             }
             composable(route = Screen.Servers.route) {
-                ServersScreen(
+                ServersScreen(modemManager,
                     serversScreenViewModel,
                     onNavigateToModemsList = { serverDomain ->
-                        navController.navigate(Screen.Modems(serverDomain).createRoute(serverDomain))
+                        navController.navigate(
+                            Screen.Modems(serverDomain).createRoute(serverDomain)
+                        )
                     })
             }
             composable(
@@ -126,13 +134,14 @@ fun BottomNavigationBar() {
             ) { backStackEntry ->
                 val serverDomainArg = backStackEntry.arguments?.getString("serverDomain")
 
-                val serverDomain = if (serverDomainArg.isNullOrEmpty() || serverDomainArg == "{serverDomain}") {
-                    modemsScreenViewModel.uiState.value.serverDomain ?: ""
-                } else {
-                    serverDomainArg
-                }
+                val serverDomain =
+                    if (serverDomainArg.isNullOrEmpty() || serverDomainArg == "{serverDomain}") {
+                        modemsScreenViewModel.uiState.value.serverDomain ?: ""
+                    } else {
+                        serverDomainArg
+                    }
 
-                ModemsScreen(modemsScreenViewModel, serverDomain)
+                ModemsScreen(modemManager, modemsScreenViewModel, serverDomain)
             }
         }
     }

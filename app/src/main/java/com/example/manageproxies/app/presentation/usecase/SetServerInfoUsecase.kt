@@ -38,7 +38,7 @@ class SetServerInfoUsecase @Inject constructor(
                             id = server.server_id,
                             geo = server.server_geo,
                             domain = server.server_domain,
-                            totalIncome = server.server_approximate_income.extractDigitsOnly().toInt(),
+                            totalIncome = server.server_approximate_income?.extractDigitsOnly()?.toIntOrNull() ?: 0,
                             allModems = relatedModems.size,
                             sellingModems = relatedModems.count { it.isSelling },
                             activatedModems = relatedModems.count { it.isActivated },

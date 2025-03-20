@@ -3,6 +3,7 @@ package com.example.manageproxies.app.di
 import android.content.Context
 import androidx.room.Room
 import androidx.work.WorkManager
+import com.example.manageproxies.app.presentation.usecase.ModemManager
 import com.example.manageproxies.app.repository.TokenRepository
 import com.example.manageproxies.data.database.ServerDatabase
 import com.example.manageproxies.data.remote.MyApi
@@ -63,7 +64,14 @@ class DataModule {
     @Singleton
     fun provideWorkManager(
         @ApplicationContext appContext: Context
-    ) : WorkManager {
+    ): WorkManager {
         return WorkManager.getInstance(appContext)
+    }
+
+    @Provides
+    @Singleton
+    fun provideModemManager(repository: TokenRepository): ModemManager {
+        return ModemManager(repository)
+
     }
 }

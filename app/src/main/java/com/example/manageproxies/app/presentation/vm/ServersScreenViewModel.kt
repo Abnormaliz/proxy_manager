@@ -49,6 +49,7 @@ class ServersScreenViewModel @Inject constructor(
                     countTotalIncome()
                     countAmountOfServers()
                     _uiState.update { it.copy(isLoading = false) }
+                    Log.d("ServersScreenViewModel", "${_uiState.value.errors}")
                 }
             }
         }
@@ -92,7 +93,7 @@ class ServersScreenViewModel @Inject constructor(
 
     private fun countTotalIncome() {
         _uiState.update { it ->
-            val totalIncome = it.serverList.sumOf { it.totalIncome }
+            val totalIncome = it.serverList.sumOf { it.totalIncome ?: 0}
             it.copy(totalIncome = totalIncome)
         }
     }

@@ -9,7 +9,7 @@ data class ServerInfoUi(
     val domain: String,
     val geo: String,
     val modemList: List<ModemUi> = emptyList(),
-    val totalIncome: Int,
+    val totalIncome: Int? = 0,
     val dailyIncome: Int? = null,
     val allModems: Int? = null,
     val sellingModems: Int? = null,

@@ -11,5 +11,6 @@ data class ModemsScreenState(
     val modemList: List<ModemUi> = emptyList(),
     val isLoading: Boolean = false,
     val errors: Map<String, String> = emptyMap(),
-    val isLoaded: Boolean = false
+    val isLoaded: Boolean = false,
+    val modemManager: String? = null
 )

@@ -1,3 +1,4 @@
+/*
 package com.example.manageproxies.data.workmanager
 
 import android.content.Context
@@ -24,7 +25,8 @@ class UploadWorker @AssistedInject constructor(
         try {
             val token = tokenRepository.getApiTokenByName("1")
             val statistics = try {
-                tokenRepository.getServerFromApi(token.value.toString()).map { it.toDailyStatistic() }
+                tokenRepository.getServerFromApi(token.value.toString())
+                    .map { it.toDailyStatistic() }
             } catch (e: Exception) {
                 return Result.failure()
             }
@@ -52,4 +54,4 @@ class UploadWorker @AssistedInject constructor(
         val formatter = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
         return formatter.format(java.util.Date())
     }
-}
+}*/

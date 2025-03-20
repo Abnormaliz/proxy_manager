@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.manageproxies.R
 import com.example.manageproxies.app.presentation.models.ServerInfoUi
+import com.example.manageproxies.app.presentation.usecase.ModemManager
 import com.example.manageproxies.app.presentation.vm.ServersScreenIntent
 import com.example.manageproxies.app.presentation.vm.ServersScreenViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
@@ -45,10 +46,13 @@ import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
 
 @Composable
-fun ServersScreen(viewModel: ServersScreenViewModel, onNavigateToModemsList: (String) -> Unit) {
+fun ServersScreen(
+    modemManager: ModemManager,
+    viewModel: ServersScreenViewModel,
+    onNavigateToModemsList: (String) -> Unit
+) {
     val uiState by viewModel.uiState.collectAsState()
     val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = uiState.isLoading)
-
 
     Column(
         modifier = Modifier
@@ -65,7 +69,7 @@ fun ServersScreen(viewModel: ServersScreenViewModel, onNavigateToModemsList: (St
                         )
                     }, modifier = Modifier.fillMaxSize()
                 ) {
-                    ShowServers(uiState.serverList, onNavigateToModemsList)
+                        ShowServers(modemManager, uiState.serverList, onNavigateToModemsList)
                 }
 
             }
@@ -76,17 +80,19 @@ fun ServersScreen(viewModel: ServersScreenViewModel, onNavigateToModemsList: (St
 
 @Composable
 fun ShowServers(
+    modemManager: ModemManager,
     serverInfo: List<ServerInfoUi>?,
     onNavigateToModemsList: (String) -> Unit
 ) {
     LazyColumn(
-        modifier = Modifier.wrapContentSize(),
+        modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         serverInfo?.let { servers ->
             items(servers) { server ->
                 ShowServerInfo(
+                    modemManager = modemManager,
                     server = server,
                     onNavigateToModemsList = onNavigateToModemsList
                 )
@@ -98,6 +104,7 @@ fun ShowServers(
 
 @Composable
 fun ShowServerInfo(
+    modemManager: ModemManager,
     server: ServerInfoUi,
     onNavigateToModemsList: (String) -> Unit
 ) {
@@ -111,7 +118,10 @@ fun ShowServerInfo(
             .border(1.dp, color = MaterialTheme.colorScheme.outline, RoundedCornerShape(12.dp)),
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(8.dp),
-        onClick = { onNavigateToModemsList(server.domain) }
+        onClick = {
+            modemManager.setServerDomain(server.domain)
+            onNavigateToModemsList(server.domain)
+        }
     ) {
         Row(
             modifier = Modifier

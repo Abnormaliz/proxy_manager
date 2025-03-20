@@ -35,15 +35,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.manageproxies.R
 import com.example.manageproxies.app.presentation.models.ModemUi
+import com.example.manageproxies.app.presentation.usecase.ModemManager
 import com.example.manageproxies.app.presentation.vm.ModemsScreenIntent
 import com.example.manageproxies.app.presentation.vm.ModemsScreenViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
 @Composable
-fun ModemsScreen(viewModel: ModemsScreenViewModel, serverDomain: String) {
+fun ModemsScreen(
+    modemManager: ModemManager, viewModel: ModemsScreenViewModel, serverDomain: String
+) {
     val uiState by viewModel.uiState.collectAsState()
     val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = uiState.isLoading)
+
+
 
     LaunchedEffect(uiState.serverDomain) {
         if (serverDomain.isNotEmpty()&& serverDomain != "{serverDomain}") {
@@ -96,43 +101,43 @@ fun ShowModems(modems: List<ModemUi>?) {
 }
 
 
-    @Composable
-    fun ModemRow(modem: ModemUi) {
-        Card(
+@Composable
+fun ModemRow(modem: ModemUi) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(4.dp)
+            .shadow(8.dp, RoundedCornerShape(12.dp))
+            .border(1.dp, color = MaterialTheme.colorScheme.outline, RoundedCornerShape(12.dp)),
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(8.dp),
+    ) {
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(4.dp)
-                .shadow(8.dp, RoundedCornerShape(12.dp))
-                .border(1.dp, color = MaterialTheme.colorScheme.outline, RoundedCornerShape(12.dp)),
-            shape = RoundedCornerShape(12.dp),
-            elevation = CardDefaults.cardElevation(8.dp),
+                .then(
+                    if (modem.isOrdered) {
+                        Modifier.background(color = MaterialTheme.colorScheme.outline)
+                    } else Modifier
+                )
+                .padding(12.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Row(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .then(
-                        if (modem.isOrdered) {
-                            Modifier.background(color = MaterialTheme.colorScheme.outline)
-                        } else Modifier
-                    )
-                    .padding(12.dp),
+                    .fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    if (modem.status == true)
-                        Image(painterResource(R.drawable.status_on), contentDescription = "statusOn")
-                    else Image(painterResource(R.drawable.status_off), contentDescription = "statusOff")
-                    Text(text = modem.eid.toString())
-                    Text(text = modem.name)
-                    Text(text = modem.operator)
-                }
+                if (modem.status == true)
+                    Image(painterResource(R.drawable.status_on), contentDescription = "statusOn")
+                else Image(painterResource(R.drawable.status_off), contentDescription = "statusOff")
+                Text(text = modem.eid.toString())
+                Text(text = modem.name)
+                Text(text = modem.operator)
             }
         }
-        }
+    }
+}
 
 
 @Composable
@@ -172,8 +177,8 @@ private fun CustomNumberDisplay(number: Int, args: String? = null) {
     val formattedText = buildAnnotatedString {
         val textSize = 40.sp
 
-            withStyle(style = SpanStyle(fontSize = textSize)) {
-                append(numberString)
+        withStyle(style = SpanStyle(fontSize = textSize)) {
+            append(numberString)
         }
         args?.let {
             withStyle(style = SpanStyle(fontSize = textSize)) {
