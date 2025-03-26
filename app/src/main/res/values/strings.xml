@@ -17,9 +17,10 @@
     <string name="server_geo">Гео:</string>
     <string name="server_income">Доход:</string>
     <string name="server_modems_selling">В продаже:</string>
+    <string name="server_modems_freeSelling">Свободно:</string>
     <string name="server_modems_activated">Включено модемов:</string>
     <string name="server_modems_total">Всего модемов:</string>
-    <string name="server_orders_total">Всего заказов:</string>
+    <string name="server_orders_total">Заказы:</string>
     <string name="server_orders_clients">Клиенты с сайта:</string>
     <string name="server_orders_self">Выдано вручную:</string>
     <string name="server_orders_test">Выдано на тест:</string>

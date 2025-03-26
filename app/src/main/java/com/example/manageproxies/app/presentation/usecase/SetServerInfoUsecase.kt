@@ -40,6 +40,7 @@ class SetServerInfoUsecase @Inject constructor(
                             domain = server.server_domain,
                             totalIncome = server.server_approximate_income?.extractDigitsOnly()?.toIntOrNull() ?: 0,
                             allModems = relatedModems.size,
+                            freeModemsSelling = relatedModems.count { !it.isOrdered && it.isSelling},
                             sellingModems = relatedModems.count { it.isSelling },
                             activatedModems = relatedModems.count { it.isActivated },
                             allOrders = relatedModems.count { it.isOrdered },

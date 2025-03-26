@@ -7,13 +7,15 @@ import com.example.manageproxies.app.presentation.usecase.GetAllApiTokensFromDat
 import com.example.manageproxies.app.presentation.usecase.SetServerInfoUsecase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
@@ -60,19 +62,16 @@ class ServersScreenViewModel @Inject constructor(
             val serverInfo = withContext(Dispatchers.IO) {
                 setServerInfoUsecase.getServerInfo(_uiState.value.apiTokenList)
             }
-            Log.d("ServersScreen", "$serverInfo")
             _uiState.update {
                 it.copy(
-                    serverList = serverInfo
+                    serverList = serverInfo,
+                    errors = null
                 )
             }
         } catch (e: Exception) {
-            Log.d("ServersScreen", "${e.message}")
-            _uiState.update {
-                it.copy(
-                    errors = mapOf("requestError" to "Не удалось загрузить данные сервера")
-                )
-            }
+            val timestamp = SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date())
+            val errorMessage = "[$timestamp] ${e.message}"
+            _uiState.update { it.copy(errors = mapOf("requestError" to errorMessage)) }
         }
 
 
@@ -84,16 +83,23 @@ class ServersScreenViewModel @Inject constructor(
             val apiTokens = withContext(Dispatchers.IO) {
                 getAllApiTokenFromDatabaseUsecase.getAllApiTokens()
             }
-            _uiState.update { it.copy(apiTokenList = apiTokens) }
+            _uiState.update {
+                it.copy(
+                    apiTokenList = apiTokens,
+                    errors = null
+                )
+            }
             Log.d("ServersScreen", "${_uiState.value.apiTokenList}")
         } catch (e: Exception) {
-            _uiState.update { it.copy(errors = mapOf("requestError" to "Не удалось загрузить данные Api-токенов")) }
+            val timestamp = SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date())
+            val errorMessage = "[$timestamp] ${e.message}"
+            _uiState.update { it.copy(errors = mapOf("requestError" to errorMessage)) }
         }
     }
 
     private fun countTotalIncome() {
         _uiState.update { it ->
-            val totalIncome = it.serverList.sumOf { it.totalIncome ?: 0}
+            val totalIncome = it.serverList.sumOf { it.totalIncome ?: 0 }
             it.copy(totalIncome = totalIncome)
         }
     }

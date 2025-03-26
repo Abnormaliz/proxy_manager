@@ -18,11 +18,16 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -40,6 +45,7 @@ import com.example.manageproxies.app.presentation.vm.ModemsScreenIntent
 import com.example.manageproxies.app.presentation.vm.ModemsScreenViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import kotlinx.coroutines.launch
 
 @Composable
 fun ModemsScreen(
@@ -47,35 +53,52 @@ fun ModemsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = uiState.isLoading)
+    val snackBarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
 
+    LaunchedEffect(uiState) {
+        Log.d("duplicate", "UI state updated: $uiState")
+    }
 
-
-    LaunchedEffect(uiState.serverDomain) {
-        if (serverDomain.isNotEmpty()&& serverDomain != "{serverDomain}") {
-            viewModel.handleIntent(ModemsScreenIntent.UpdateServerDomain(serverDomain))
-            viewModel.handleIntent(ModemsScreenIntent.UpdateModemsScreen)
+    LaunchedEffect(uiState.errors) {
+        uiState.errors?.let { message ->
+            coroutineScope.launch {
+                snackBarHostState.showSnackbar(message.values.joinToString("\n"))
+            }
         }
     }
 
-
-    Column(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        uiState.server?.allOrders?.let { allOrders ->
-            uiState.server!!.sellingModems?.let { sellingModems ->
-                CustomToolBar(sellingModems, allOrders)
-            }
+    LaunchedEffect(serverDomain) {
+        Log.d("duplicate", "LU worked")
+        if (serverDomain.isNotEmpty() && serverDomain != "{serverDomain}" &&
+            serverDomain != uiState.serverDomain
+        ) {
+            viewModel.handleIntent(ModemsScreenIntent.UpdateServerDomain(serverDomain))
         }
-        Box(modifier = Modifier.fillMaxWidth()) {
-            Column {
-                SwipeRefresh(
-                    state = swipeRefreshState,
-                    onRefresh = {
-                        viewModel.handleIntent(ModemsScreenIntent.UpdateModemsScreen)
-                    },
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    ShowModems(uiState.server?.modemList)
+    }
+
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackBarHostState) }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier.fillMaxSize().padding(paddingValues)
+        ) {
+            uiState.server?.allOrders?.let { allOrders ->
+                uiState.server!!.sellingModems?.let { sellingModems ->
+                    CustomToolBar(sellingModems, allOrders)
+                }
+            }
+            Box(modifier = Modifier.fillMaxWidth()) {
+                Column {
+                    SwipeRefresh(
+                        state = swipeRefreshState,
+                        onRefresh = {
+                            viewModel.handleIntent(ModemsScreenIntent.UpdateModemsScreen)
+                        },
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        ShowModems(uiState.server?.modemList)
+                    }
                 }
             }
         }

@@ -10,7 +10,7 @@ data class ModemsScreenState(
     val apiTokenList: List<ApiToken> = emptyList(),
     val modemList: List<ModemUi> = emptyList(),
     val isLoading: Boolean = false,
-    val errors: Map<String, String> = emptyMap(),
+    val errors: Map<String, String>? = null,
     val isLoaded: Boolean = false,
     val modemManager: String? = null
 )

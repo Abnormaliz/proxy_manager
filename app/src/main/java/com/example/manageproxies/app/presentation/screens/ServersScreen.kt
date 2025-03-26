@@ -11,19 +11,23 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,6 +47,8 @@ import com.example.manageproxies.app.presentation.vm.ServersScreenIntent
 import com.example.manageproxies.app.presentation.vm.ServersScreenViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -53,28 +59,46 @@ fun ServersScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = uiState.isLoading)
+    val snackBarHostState = remember { SnackbarHostState()}
+    val coroutineScope = rememberCoroutineScope()
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
 
-    ) {
-        CustomToolBar(uiState.totalIncome, uiState.amountOfServers)
-        Box(modifier = Modifier.fillMaxWidth()) {
-            Column {
-                SwipeRefresh(
-                    state = swipeRefreshState, onRefresh = {
-                        viewModel.handleIntent(
-                            ServersScreenIntent.UpdateServersScreen
-                        )
-                    }, modifier = Modifier.fillMaxSize()
-                ) {
-                        ShowServers(modemManager, uiState.serverList, onNavigateToModemsList)
-                }
-
+    LaunchedEffect(uiState.errors) {
+        uiState.errors?.let { message ->
+            coroutineScope.launch {
+                snackBarHostState.showSnackbar(message.values.joinToString("\n"))
             }
         }
     }
+
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackBarHostState)}
+    ) {
+        paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+
+        ) {
+            CustomToolBar(uiState.totalIncome, uiState.amountOfServers)
+            Box(modifier = Modifier.fillMaxWidth()) {
+                Column {
+                    SwipeRefresh(
+                        state = swipeRefreshState, onRefresh = {
+                            viewModel.handleIntent(
+                                ServersScreenIntent.UpdateServersScreen
+                            )
+                        }, modifier = Modifier.fillMaxSize()
+                    ) {
+                        ShowServers(modemManager, uiState.serverList, onNavigateToModemsList)
+                    }
+
+                }
+            }
+        }
+    }
+
 }
 
 
@@ -134,13 +158,17 @@ fun ShowServerInfo(
                 ServerInfoFormattedText(R.string.server_geo, server.geo)
                 ServerInfoFormattedText(R.string.server_income, server.totalIncome.toString(), " ₽")
                 ServerInfoFormattedText(
-                    R.string.server_modems_selling,
-                    server.sellingModems.toString(),
+                    R.string.server_modems_freeSelling,
+                    server.freeModemsSelling.toString(),
                     textDecoration = TextDecoration.Underline,
                     modifier = Modifier.clickable { areModemsExpanded = !areModemsExpanded }
                 )
                 AnimatedVisibility(visible = areModemsExpanded) {
                     Column {
+                        ServerInfoFormattedText(
+                            R.string.server_modems_selling,
+                            server.sellingModems.toString()
+                        )
                         ServerInfoFormattedText(
                             R.string.server_modems_activated,
                             server.activatedModems.toString()
