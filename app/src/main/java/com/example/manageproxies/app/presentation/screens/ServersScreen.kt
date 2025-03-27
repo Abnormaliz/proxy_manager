@@ -158,28 +158,6 @@ fun ShowServerInfo(
                 ServerInfoFormattedText(R.string.server_geo, server.geo)
                 ServerInfoFormattedText(R.string.server_income, server.totalIncome.toString(), " ₽")
                 ServerInfoFormattedText(
-                    R.string.server_modems_freeSelling,
-                    server.freeModemsSelling.toString(),
-                    textDecoration = TextDecoration.Underline,
-                    modifier = Modifier.clickable { areModemsExpanded = !areModemsExpanded }
-                )
-                AnimatedVisibility(visible = areModemsExpanded) {
-                    Column {
-                        ServerInfoFormattedText(
-                            R.string.server_modems_selling,
-                            server.sellingModems.toString()
-                        )
-                        ServerInfoFormattedText(
-                            R.string.server_modems_activated,
-                            server.activatedModems.toString()
-                        )
-                        ServerInfoFormattedText(
-                            R.string.server_modems_total,
-                            server.allModems.toString()
-                        )
-                    }
-                }
-                ServerInfoFormattedText(
                     R.string.server_orders_total,
                     server.allOrders.toString(),
                     textDecoration = TextDecoration.Underline,
@@ -198,6 +176,28 @@ fun ShowServerInfo(
                         ServerInfoFormattedText(
                             R.string.server_orders_test,
                             server.testOrders.toString()
+                        )
+                    }
+                }
+                ServerInfoFormattedText(
+                    R.string.server_modems_freeSelling,
+                    server.freeModemsSelling.toString(),
+                    textDecoration = TextDecoration.Underline,
+                    modifier = Modifier.clickable { areModemsExpanded = !areModemsExpanded }
+                )
+                AnimatedVisibility(visible = areModemsExpanded) {
+                    Column {
+                        ServerInfoFormattedText(
+                            R.string.server_modems_selling,
+                            server.sellingModems.toString()
+                        )
+                        ServerInfoFormattedText(
+                            R.string.server_modems_activated,
+                            server.activatedModems.toString()
+                        )
+                        ServerInfoFormattedText(
+                            R.string.server_modems_total,
+                            server.allModems.toString()
                         )
                     }
                 }

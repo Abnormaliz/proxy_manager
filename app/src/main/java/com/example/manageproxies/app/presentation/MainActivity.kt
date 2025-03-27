@@ -1,6 +1,7 @@
 package com.example.manageproxies.app.presentation
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -13,6 +14,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.colorResource
@@ -31,6 +36,7 @@ import com.example.manageproxies.app.presentation.screens.ServersScreen
 import com.example.manageproxies.app.presentation.screens.TokensScreen
 import com.example.manageproxies.app.presentation.ui.theme.AppTheme
 import com.example.manageproxies.app.presentation.usecase.ModemManager
+import com.example.manageproxies.app.presentation.vm.ModemsScreenIntent
 import com.example.manageproxies.app.presentation.vm.ModemsScreenViewModel
 import com.example.manageproxies.app.presentation.vm.ServersScreenViewModel
 import com.example.manageproxies.app.presentation.vm.TokensScreenViewModel
@@ -60,18 +66,16 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun BottomNavigationBar(modemManager: ModemManager) {
-    val modemsScreenViewModel = hiltViewModel<ModemsScreenViewModel>()
     val serversScreenViewModel = hiltViewModel<ServersScreenViewModel>()
+    val modemsScreenViewModel = hiltViewModel<ModemsScreenViewModel>()
     val tokensScreenViewModel = hiltViewModel<TokensScreenViewModel>()
     val navController = rememberNavController()
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
-
+    var selectedServerDomain: String by remember { mutableStateOf("") }
 
     val screens = listOf(
         Screen.Servers to R.drawable.servers_bold_icon,
-        Screen.Modems(
-            modemsScreenViewModel.uiState.value.serverDomain ?: ""
-        ) to R.drawable.modems_bold_icon,
+        Screen.Modems to R.drawable.modems_bold_icon,
         Screen.Tokens to R.drawable.tokens_bold_icon
 
     )
@@ -118,30 +122,23 @@ fun BottomNavigationBar(modemManager: ModemManager) {
                 ServersScreen(modemManager,
                     serversScreenViewModel,
                     onNavigateToModemsList = { serverDomain ->
+                        modemsScreenViewModel.handleIntent(ModemsScreenIntent.UpdateServerDomain(serverDomain))
+                        selectedServerDomain = serverDomain
                         navController.navigate(
-                            Screen.Modems(serverDomain).createRoute(serverDomain)
+                            Screen.Modems.createRoute(serverDomain)
                         )
                     })
             }
             composable(
-                route = Screen.Modems("{serverDomain}").route,
+                route = Screen.Modems.route,
                 arguments = listOf(
                     navArgument("serverDomain") {
                         type = NavType.StringType
                         nullable = true
-                    }
+                    } // добавить сингл
                 )
             ) { backStackEntry ->
-                val serverDomainArg = backStackEntry.arguments?.getString("serverDomain")
-
-                val serverDomain =
-                    if (serverDomainArg.isNullOrEmpty() || serverDomainArg == "{serverDomain}") {
-                        modemsScreenViewModel.uiState.value.serverDomain ?: ""
-                    } else {
-                        serverDomainArg
-                    }
-
-                ModemsScreen(modemManager, modemsScreenViewModel, serverDomain)
+                ModemsScreen(modemsScreenViewModel)
             }
         }
     }

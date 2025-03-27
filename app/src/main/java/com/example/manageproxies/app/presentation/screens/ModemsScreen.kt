@@ -40,7 +40,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.manageproxies.R
 import com.example.manageproxies.app.presentation.models.ModemUi
-import com.example.manageproxies.app.presentation.usecase.ModemManager
 import com.example.manageproxies.app.presentation.vm.ModemsScreenIntent
 import com.example.manageproxies.app.presentation.vm.ModemsScreenViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
@@ -49,31 +48,19 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun ModemsScreen(
-    modemManager: ModemManager, viewModel: ModemsScreenViewModel, serverDomain: String
+    viewModel: ModemsScreenViewModel
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = uiState.isLoading)
     val snackBarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
-    LaunchedEffect(uiState) {
-        Log.d("duplicate", "UI state updated: $uiState")
-    }
 
     LaunchedEffect(uiState.errors) {
         uiState.errors?.let { message ->
             coroutineScope.launch {
                 snackBarHostState.showSnackbar(message.values.joinToString("\n"))
             }
-        }
-    }
-
-    LaunchedEffect(serverDomain) {
-        Log.d("duplicate", "LU worked")
-        if (serverDomain.isNotEmpty() && serverDomain != "{serverDomain}" &&
-            serverDomain != uiState.serverDomain
-        ) {
-            viewModel.handleIntent(ModemsScreenIntent.UpdateServerDomain(serverDomain))
         }
     }
 

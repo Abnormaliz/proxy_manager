@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.example.manageproxies.app.presentation.models.toModemIpUi
 import com.example.manageproxies.app.presentation.usecase.GetAllApiTokensFromDatabaseUsecase
 import com.example.manageproxies.app.presentation.usecase.GetModemIpApiUsecase
-import com.example.manageproxies.app.presentation.usecase.ModemManager
 import com.example.manageproxies.app.presentation.usecase.SetOneServerInfoUsecase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -25,8 +24,7 @@ import javax.inject.Inject
 class ModemsScreenViewModel @Inject constructor(
     private val getModemIpApiUseCase: GetModemIpApiUsecase,
     private val setOneServerInfoUsecase: SetOneServerInfoUsecase,
-    private val getAllApiTokenFromDatabaseUsecase: GetAllApiTokensFromDatabaseUsecase,
-    private val modemManager: ModemManager
+    private val getAllApiTokenFromDatabaseUsecase: GetAllApiTokensFromDatabaseUsecase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<ModemsScreenState>(ModemsScreenState())
@@ -39,7 +37,7 @@ class ModemsScreenViewModel @Inject constructor(
                 viewModelScope.launch {
                     _uiState.update { it.copy(isLoading = true) }
                     loadAllApiTokensFromDatabase()
-                    launch { setServerInfo() }.join()
+                    setServerInfo()
                     setModemStatusNew()
                     _uiState.update { it.copy(isLoading = false) }
                 }
@@ -51,13 +49,17 @@ class ModemsScreenViewModel @Inject constructor(
                 val currentDomain = _uiState.value.serverDomain
                 if (currentDomain != intent.serverDomain) {
                     viewModelScope.launch {
-                        _uiState.update { it.copy(isLoading = true, serverDomain = intent.serverDomain) }
+                        _uiState.update {
+                            it.copy(
+                                isLoading = true,
+                                serverDomain = intent.serverDomain
+                            )
+                        }
                         loadAllApiTokensFromDatabase()
                         setServerInfo()
                         setModemStatusNew()
                         _uiState.update { it.copy(isLoading = false) }
                     }
-                    Log.d("123", "modemManager: ${modemManager.serverDomain.value}")
                 }
             }
         }
@@ -100,20 +102,21 @@ class ModemsScreenViewModel @Inject constructor(
                 }
 
                 val eids = server.modemList.map { it.eid }
-
                 val eidsString = eids.joinToString(",")
-
                 val allIps = getModemIpApiUseCase.execute(server.token, eidsString).toModemIpUi()
-
                 val ipsMap = allIps.eid ?: emptyMap()
-
                 val updatedModems = server.modemList.map { modem ->
                     if (ipsMap.containsKey(modem.eid.toString())) {
                         modem.copy(status = true)
                     } else modem
                 }
 
-                _uiState.update { it.copy(server = server.copy(modemList = updatedModems)) }
+                _uiState.update {
+                    it.copy(
+                        server = server.copy(modemList = updatedModems),
+                        errors = null
+                    )
+                }
 
             } catch (e: Exception) {
                 val timestamp = SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date())
