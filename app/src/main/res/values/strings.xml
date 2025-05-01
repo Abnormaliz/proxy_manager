@@ -1,6 +1,6 @@
 <resources>
     <!-- App-level strings -->
-    <string name="app_name">ManageProxies</string>
+    <string name="app_name">ProxyMgr</string>
 
     <!-- API Token Screen -->
     <string name="api_token_name_hint">Введите наименование сервера</string>

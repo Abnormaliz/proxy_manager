@@ -25,6 +25,16 @@ android {
         }
     }
 
+    applicationVariants.all {
+        val variant = this
+        if (variant.buildType.name == "release") {
+            variant.outputs.all {
+                val outputImpl = this as com.android.build.gradle.internal.api.BaseVariantOutputImpl
+                outputImpl.outputFileName = "ProxyMgr-${variant.versionName}.apk"
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
